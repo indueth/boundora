@@ -37,5 +37,18 @@
       "source": "/(play|heroes|market)",
       "destination": "/index.html"
     }
+  ],
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.boundora.xyz"
+        }
+      ],
+      "destination": "https://boundora.xyz/:path*",
+      "permanent": true
+    }
   ]
 }
