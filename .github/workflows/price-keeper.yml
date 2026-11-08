@@ -1,0 +1,31 @@
+# Keeps the $5 pass price accurate: posts the NEAR/USD rate from Pyth to the contract
+# every 30 minutes. Uses the same secrets as the deploy workflow. The signing account
+# must be the contract owner or the account set with set_price_keeper.
+name: NEAR price keeper
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+jobs:
+  post-price:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install near CLI
+        run: npm install -g near-cli-rs
+      - name: Fetch NEAR/USD from Pyth and post it
+        env:
+          ID: ${{ secrets.NEAR_CONTRACT_ID }}
+          PUB: ${{ secrets.NEAR_PUBLIC_KEY }}
+          PRIV: ${{ secrets.NEAR_PRIVATE_KEY }}
+        run: |
+          MICRO=$(python3 scripts/near-usd-from-pyth.py)
+          echo "NEAR/USD micro-dollars: $MICRO"
+          near contract call-function as-transaction "$ID" set_near_usd_price \
+            json-args "{\"price_micro_usd\":\"$MICRO\"}" \
+            prepaid-gas '30.0 Tgas' attached-deposit '0 NEAR' \
+            sign-as "$ID" network-config testnet \
+            sign-with-plaintext-private-key --signer-public-key "$PUB" --signer-private-key "$PRIV" send
+          near contract call-function as-read-only "$ID" pass_quote json-args '{}' network-config testnet now

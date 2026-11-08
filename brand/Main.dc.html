@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Frost Crest lockup</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 880px; height: 560px; box-sizing: border-box; background: {{ground}}; display: flex; align-items: center; justify-content: center; font-family: 'Nunito', sans-serif; color: #FFFFFF; overflow: hidden">
+<svg width="800" height="400" viewBox="0 0 800 400" role="img" aria-label="Boundora logo: frost crest with a struck B beside the Boundora wordmark">
+<defs>
+<clipPath id="shieldClip"><path d="M100 22 C140 22 170 30 186 40 L186 120 C186 175 150 210 100 232 C50 210 14 175 14 120 L14 40 C30 30 60 22 100 22 Z"></path></clipPath>
+<clipPath id="wmTop"><rect x="0" y="0" width="800" height="196"></rect></clipPath>
+</defs>
+<g transform="translate(20 60) scale(1.18)">
+<path d="M100 30 C140 30 170 38 186 48 L186 128 C186 183 150 218 100 240 C50 218 14 183 14 128 L14 48 C30 38 60 30 100 30 Z" fill="#13233F"></path>
+<path d="M100 22 C140 22 170 30 186 40 L186 120 C186 175 150 210 100 232 C50 210 14 175 14 120 L14 40 C30 30 60 22 100 22 Z" fill="#2A5590" stroke="#13233F" stroke-width="9" stroke-linejoin="round"></path>
+<g clip-path="url(#shieldClip)">
+<rect x="100" y="0" width="100" height="240" fill="#1D3D6B"></rect>
+<polygon points="14,214 54,214 196,62 196,22 186,22" fill="#FF8A1F" stroke="#13233F" stroke-width="7" stroke-linejoin="round"></polygon>
+<polygon points="34,200 46,200 186,52 186,40" fill="#FFB24D"></polygon>
+</g>
+<text x="100" y="186" text-anchor="middle" font-family="Lilita One" font-size="134" fill="#FFFFFF" stroke="#13233F" stroke-width="12" stroke-linejoin="round" paint-order="stroke">B</text>
+<path d="M10 42 C28 28 60 16 100 16 C140 16 172 28 190 42 L190 56 C182 58 178 70 168 70 C158 70 156 58 146 58 C136 58 134 80 122 80 C110 80 110 60 100 60 C90 60 88 74 78 74 C68 74 66 58 56 58 C46 58 42 68 32 68 C22 68 18 56 10 56 Z" fill="#FFFFFF" stroke="#13233F" stroke-width="7" stroke-linejoin="round"></path>
+<path d="M30 40 C52 30 76 26 100 26" fill="none" stroke="#B8DDF3" stroke-width="5" stroke-linecap="round"></path>
+<polygon points="100,-6 116,14 100,34 84,14" fill="#FFC23A" stroke="#13233F" stroke-width="6" stroke-linejoin="round"></polygon>
+<polygon points="100,2 108,14 100,14" fill="#FFE59A"></polygon>
+</g>
+<g>
+<text x="262" y="232" font-family="Lilita One" font-size="104" letter-spacing="2" fill="#13233F" stroke="#13233F" stroke-width="18" stroke-linejoin="round" paint-order="stroke">BOUNDORA</text>
+<text x="262" y="222" font-family="Lilita One" font-size="104" letter-spacing="2" fill="{{fire}}" stroke="#13233F" stroke-width="14" stroke-linejoin="round" paint-order="stroke">BOUNDORA</text>
+<text x="262" y="222" font-family="Lilita One" font-size="104" letter-spacing="2" fill="#FFB24D" clip-path="url(#wmTop)">BOUNDORA</text>
+<text x="268" y="292" font-family="Nunito" font-weight="900" font-size="26" letter-spacing="1" fill="{{tagColor}}">{{tagline}}</text>
+</g>
+</svg>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"ground":{"editor":"color","default":"#1D3D6B"},"fire":{"editor":"color","default":"#FF8A1F"},"tagColor":{"editor":"color","default":"#B8DDF3"},"tagline":{"editor":"text","default":"Frost arena on NEAR"},"$preview":{"width":880,"height":560}}'>
+class Component extends DCLogic {
+renderVals() {
+return {
+ground: this.props.ground ?? '#1D3D6B',
+fire: this.props.fire ?? '#FF8A1F',
+tagColor: this.props.tagColor ?? '#B8DDF3',
+tagline: this.props.tagline ?? 'Frost arena on NEAR'
+};
+}
+}
+</script>
+</body>
+</html>

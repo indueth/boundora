@@ -1,0 +1,98 @@
+{
+  "Rarity": {
+    "Epic": 3400,
+    "Rare": 5600,
+    "Common": 8400,
+    "Legendary": 1800,
+    "Mythic": 800
+  },
+  "Build": {
+    "Ranger": 4793,
+    "Seer": 3225,
+    "Scout": 4349,
+    "Brute": 3583,
+    "Smith": 4050
+  },
+  "Coat": {
+    "Glacier": 2027,
+    "Pine": 2007,
+    "Charcoal": 1982,
+    "Mustard": 2030,
+    "Teal": 2028,
+    "Plum": 1962,
+    "Crimson": 2046,
+    "Umber": 1962,
+    "Navy": 1963,
+    "Slate": 1993
+  },
+  "Trim": {
+    "Snow fur": 4965,
+    "Sable fur": 5055,
+    "Tawny fur": 5085,
+    "Grey fur": 4895
+  },
+  "Headgear": {
+    "Fur hood": 5054,
+    "Knit beanie": 3410,
+    "Bare head": 2406,
+    "Ushanka": 3891,
+    "Goggles": 2342,
+    "Ice crown": 384,
+    "Horned helm": 2309,
+    "Aurora halo": 204
+  },
+  "Facial hair": {
+    "None": 7685,
+    "Stubble": 4151,
+    "Braided beard": 2502,
+    "Full beard": 3470,
+    "Mustache": 2192
+  },
+  "Hair": {
+    "Flax": 3283,
+    "Ash": 3297,
+    "Snow": 3378,
+    "Chestnut": 3366,
+    "Auburn": 3351,
+    "Jet": 3325
+  },
+  "Mood": {
+    "Grumpy": 5056,
+    "Calm": 4897,
+    "Fierce": 5095,
+    "Determined": 4952
+  },
+  "Weapon": {
+    "War hammer": 2970,
+    "Ice axe": 2540,
+    "Torch": 2550,
+    "Frost blade": 2526,
+    "Snow shovel": 2552,
+    "Crossbow": 2571,
+    "Rune staff": 1808,
+    "Harpoon": 2483
+  },
+  "Gear": {
+    "Voidcrystal": 3400,
+    "Bluesteel": 5600,
+    "Iron & oak": 8400,
+    "Sunforged gold": 1800,
+    "Aurora glass": 800
+  },
+  "Companion": {
+    "Penguin": 2132,
+    "None": 10608,
+    "Snow owl": 2220,
+    "Husky pup": 2154,
+    "Yeti cub": 1158,
+    "Fox kit": 1728
+  },
+  "Scene": {
+    "Aurora night": 1558,
+    "Pine ridge": 4559,
+    "Blizzard": 5652,
+    "Ember camp": 3391,
+    "Glacier": 4598,
+    "Starfall": 242
+  }
+}

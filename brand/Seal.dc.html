@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Soulbound pass seal</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 880px; height: 560px; box-sizing: border-box; background: #13233F; display: flex; align-items: center; justify-content: center; font-family: 'Nunito', sans-serif">
+<svg width="500" height="500" viewBox="0 0 480 480" role="img" aria-label="Boundora soulbound pass seal">
+<defs>
+<path id="ringTop" d="M90 240 A150 150 0 0 1 390 240"></path>
+<path id="ringBot" d="M78 240 A162 162 0 0 0 402 240"></path>
+</defs>
+<path d="{{scallop}}" fill="{{gold}}" stroke="#0B1830" stroke-width="8" stroke-linejoin="round"></path>
+<circle cx="240" cy="240" r="186" fill="#1D3D6B" stroke="#0B1830" stroke-width="8"></circle>
+<circle cx="240" cy="240" r="120" fill="#2A5590" stroke="#0B1830" stroke-width="8"></circle>
+<circle cx="240" cy="240" r="176" fill="none" stroke="#B8DDF3" stroke-width="3" stroke-dasharray="2 10" stroke-linecap="round"></circle>
+<text font-family="Lilita One" font-size="34" letter-spacing="6" fill="#FFFFFF"><textPath href="#ringTop" startOffset="50%" text-anchor="middle">BOUNDORA</textPath></text>
+<text font-family="Nunito" font-weight="900" font-size="22" letter-spacing="5" fill="#FFC23A"><textPath href="#ringBot" startOffset="50%" text-anchor="middle">SOULBOUND PASS</textPath></text>
+<polygon points="96,240 106,230 116,240 106,250" fill="#FFC23A"></polygon>
+<polygon points="364,240 374,230 384,240 374,250" fill="#FFC23A"></polygon>
+<polygon points="152,322 186,322 336,166 336,132" fill="#FF8A1F" stroke="#0B1830" stroke-width="6" stroke-linejoin="round"></polygon>
+<text x="240" y="292" text-anchor="middle" font-family="Lilita One" font-size="140" fill="#FFFFFF" stroke="#0B1830" stroke-width="12" stroke-linejoin="round" paint-order="stroke">B</text>
+<polygon points="240,112 254,130 240,148 226,130" fill="#FFC23A" stroke="#0B1830" stroke-width="6" stroke-linejoin="round"></polygon>
+</svg>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"gold":{"editor":"color","default":"#FFC23A"},"$preview":{"width":880,"height":560}}'>
+class Component extends DCLogic {
+renderVals() {
+const n = 28, cx = 240, cy = 240, rIn = 200, rOut = 222;
+let d = '';
+for (let i = 0; i < n; i++) {
+const a0 = (i / n) * Math.PI * 2, a1 = ((i + 0.5) / n) * Math.PI * 2, a2 = ((i + 1) / n) * Math.PI * 2;
+const p0 = [cx + rIn * Math.cos(a0), cy + rIn * Math.sin(a0)];
+const c = [cx + rOut * 1.06 * Math.cos(a1), cy + rOut * 1.06 * Math.sin(a1)];
+const p2 = [cx + rIn * Math.cos(a2), cy + rIn * Math.sin(a2)];
+if (i === 0) d += 'M' + p0[0].toFixed(1) + ' ' + p0[1].toFixed(1);
+d += ' Q' + c[0].toFixed(1) + ' ' + c[1].toFixed(1) + ' ' + p2[0].toFixed(1) + ' ' + p2[1].toFixed(1);
+}
+return { scallop: d + ' Z', gold: this.props.gold ?? '#FFC23A' };
+}
+}
+</script>
+</body>
+</html>

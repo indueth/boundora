@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Strike-ring wordmark</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 880px; height: 560px; box-sizing: border-box; background: {{ground}}; display: flex; align-items: center; justify-content: center; font-family: 'Nunito', sans-serif">
+<svg width="820" height="300" viewBox="0 0 820 300" role="img" aria-label="Boundora wordmark with the second O drawn as a strike ring">
+<text x="470" y="196" text-anchor="end" font-family="Lilita One" font-size="128" letter-spacing="1" fill="#13233F" stroke="#13233F" stroke-width="18" stroke-linejoin="round" paint-order="stroke">BOUND</text>
+<text x="470" y="188" text-anchor="end" font-family="Lilita One" font-size="128" letter-spacing="1" fill="#FFFFFF" stroke="#13233F" stroke-width="13" stroke-linejoin="round" paint-order="stroke">BOUND</text>
+<circle cx="536" cy="152" r="56" fill="#13233F"></circle>
+<circle cx="536" cy="144" r="56" fill="{{fire}}" stroke="#13233F" stroke-width="12"></circle>
+<circle cx="536" cy="144" r="28" fill="#1D3D6B" stroke="#13233F" stroke-width="8"></circle>
+<path d="M536 108 L544 136 L572 144 L544 152 L536 180 L528 152 L500 144 L528 136 Z" fill="#FFFFFF" stroke="#13233F" stroke-width="6" stroke-linejoin="round"></path>
+<path d="M500 116 A46 46 0 0 1 560 104" fill="none" stroke="#FFB24D" stroke-width="7" stroke-linecap="round"></path>
+<text x="600" y="196" font-family="Lilita One" font-size="128" letter-spacing="1" fill="#13233F" stroke="#13233F" stroke-width="18" stroke-linejoin="round" paint-order="stroke">RA</text>
+<text x="600" y="188" font-family="Lilita One" font-size="128" letter-spacing="1" fill="#FFFFFF" stroke="#13233F" stroke-width="13" stroke-linejoin="round" paint-order="stroke">RA</text>
+<rect x="150" y="228" width="520" height="14" rx="7" fill="{{fire}}" stroke="#13233F" stroke-width="5"></rect>
+<text x="410" y="282" text-anchor="middle" font-family="Nunito" font-weight="900" font-size="22" letter-spacing="1" fill="#13233F">{{tagline}}</text>
+</svg>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"ground":{"editor":"color","default":"#B8DDF3"},"fire":{"editor":"color","default":"#FF8A1F"},"tagline":{"editor":"text","default":"Strike on the beat. Win the pot."},"$preview":{"width":880,"height":560}}'>
+class Component extends DCLogic {
+renderVals() {
+return {
+ground: this.props.ground ?? '#B8DDF3',
+fire: this.props.fire ?? '#FF8A1F',
+tagline: this.props.tagline ?? 'Strike on the beat. Win the pot.'
+};
+}
+}
+</script>
+</body>
+</html>

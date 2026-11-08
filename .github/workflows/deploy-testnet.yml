@@ -1,0 +1,117 @@
+# Build the Boundora contract and deploy it to NEAR testnet.
+#
+# One-time setup (GitHub repo > Settings > Secrets and variables > Actions):
+#   NEAR_CONTRACT_ID   e.g. boundora-okafor.testnet   (the account the contract lives on)
+#   NEAR_PUBLIC_KEY    ed25519:...                     (a full-access key of that account)
+#   NEAR_PRIVATE_KEY   ed25519:...
+#
+# Run it from the Actions tab ("Deploy to NEAR testnet" > Run workflow).
+# Tick "init" the FIRST time only: it calls new(owner_id) after deploying.
+# If the account doesn't exist yet, the workflow creates it with the faucet (testnet
+# accounts ending in .testnet) using NEAR_PUBLIC_KEY.
+name: Deploy to NEAR testnet
+
+on:
+  workflow_dispatch:
+    inputs:
+      init:
+        description: "First deploy: call new() after deploying"
+        type: boolean
+        default: true
+
+jobs:
+  test-build-deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: contract
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rust 1.86 with wasm target (near-sdk's supported toolchain)
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: "1.86.0"
+          targets: wasm32-unknown-unknown
+
+      - name: Unit tests (hero account contract)
+        working-directory: vault
+        run: cargo test
+
+      - name: Unit tests (Boundora)
+        run: cargo test
+
+      - name: Install cargo-near and near CLI
+        run: |
+          curl --proto '=https' --tlsv1.2 -LsSf https://github.com/near/cargo-near/releases/latest/download/cargo-near-installer.sh | sh
+          npm install -g near-cli-rs
+
+      - name: Build the hero account wasm and embed it
+        working-directory: vault
+        run: |
+          cargo near build non-reproducible-wasm
+          cp target/near/boundora_vault.wasm res/vault.wasm
+          ls -l res/vault.wasm
+
+      - name: Build wasm
+        run: cargo near build non-reproducible-wasm
+
+      - name: Create the testnet account if it doesn't exist yet (free, from the NEAR faucet)
+        env:
+          ID: ${{ secrets.NEAR_CONTRACT_ID }}
+          PUB: ${{ secrets.NEAR_PUBLIC_KEY }}
+        run: |
+          if near account view-account-summary "$ID" network-config testnet now >/dev/null 2>&1; then
+            echo "$ID already exists"
+          else
+            near account create-account sponsor-by-faucet-service "$ID" \
+              use-manually-provided-public-key "$PUB" network-config testnet create
+            sleep 5
+          fi
+
+      - name: Deploy (with init)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.init }}
+        env:
+          ID: ${{ secrets.NEAR_CONTRACT_ID }}
+          PUB: ${{ secrets.NEAR_PUBLIC_KEY }}
+          PRIV: ${{ secrets.NEAR_PRIVATE_KEY }}
+        run: |
+          near contract deploy "$ID" use-file target/near/boundora.wasm \
+            with-init-call new json-args "{\"owner_id\":\"$ID\"}" \
+            prepaid-gas '100.0 Tgas' attached-deposit '0 NEAR' \
+            network-config testnet \
+            sign-with-plaintext-private-key --signer-public-key "$PUB" --signer-private-key "$PRIV" send
+
+      - name: Deploy (code update, keeps state)
+        if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.init) }}
+        env:
+          ID: ${{ secrets.NEAR_CONTRACT_ID }}
+          PUB: ${{ secrets.NEAR_PUBLIC_KEY }}
+          PRIV: ${{ secrets.NEAR_PRIVATE_KEY }}
+        run: |
+          near contract deploy "$ID" use-file target/near/boundora.wasm without-init-call \
+            network-config testnet \
+            sign-with-plaintext-private-key --signer-public-key "$PUB" --signer-private-key "$PRIV" send
+
+      - name: Post the first NEAR/USD price (so the $5 pass can be minted)
+        working-directory: .
+        env:
+          ID: ${{ secrets.NEAR_CONTRACT_ID }}
+          PUB: ${{ secrets.NEAR_PUBLIC_KEY }}
+          PRIV: ${{ secrets.NEAR_PRIVATE_KEY }}
+        run: |
+          MICRO=$(python3 scripts/near-usd-from-pyth.py)
+          near contract call-function as-transaction "$ID" set_near_usd_price \
+            json-args "{\"price_micro_usd\":\"$MICRO\"}" prepaid-gas '30.0 Tgas' attached-deposit '0 NEAR' \
+            sign-as "$ID" network-config testnet \
+            sign-with-plaintext-private-key --signer-public-key "$PUB" --signer-private-key "$PRIV" send
+
+      - name: Smoke test views
+        env:
+          ID: ${{ secrets.NEAR_CONTRACT_ID }}
+        run: |
+          near contract call-function as-read-only "$ID" get_cycle json-args '{}' network-config testnet now
+          near contract call-function as-read-only "$ID" hero_supply json-args '{}' network-config testnet now
+          near contract call-function as-read-only "$ID" pass_quote json-args '{}' network-config testnet now
+          near contract call-function as-read-only "$ID" hero_accounts_enabled json-args '{}' network-config testnet now
+          near contract call-function as-read-only "$ID" gear_catalog json-args '{}' network-config testnet now

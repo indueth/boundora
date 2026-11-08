@@ -1,0 +1,202 @@
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="#home" aria-label="Boundora home">
+      <svg class="crest" width="36" height="46" viewBox="0 -12 200 256" aria-hidden="true"><defs><clipPath id="crestA"><path d="M100 22 C140 22 170 30 186 40 L186 120 C186 175 150 210 100 232 C50 210 14 175 14 120 L14 40 C30 30 60 22 100 22 Z"/></clipPath></defs><path d="M100 30 C140 30 170 38 186 48 L186 128 C186 183 150 218 100 240 C50 218 14 183 14 128 L14 48 C30 38 60 30 100 30 Z" fill="#13233F"/><path d="M100 22 C140 22 170 30 186 40 L186 120 C186 175 150 210 100 232 C50 210 14 175 14 120 L14 40 C30 30 60 22 100 22 Z" fill="#2A5590" stroke="#13233F" stroke-width="9" stroke-linejoin="round"/><g clip-path="url(#crestA)"><rect x="100" y="0" width="100" height="240" fill="#1D3D6B"/><polygon points="14,214 54,214 196,62 196,22 186,22" fill="#FF8A1F" stroke="#13233F" stroke-width="7" stroke-linejoin="round"/><polygon points="34,200 46,200 186,52 186,40" fill="#FFB24D"/></g><text x="100" y="186" text-anchor="middle" font-family="'Lilita One', 'Arial Black', sans-serif" font-size="134" fill="#FFFFFF" stroke="#13233F" stroke-width="12" stroke-linejoin="round" paint-order="stroke">B</text><path d="M10 42 C28 28 60 16 100 16 C140 16 172 28 190 42 L190 56 C182 58 178 70 168 70 C158 70 156 58 146 58 C136 58 134 80 122 80 C110 80 110 60 100 60 C90 60 88 74 78 74 C68 74 66 58 56 58 C46 58 42 68 32 68 C22 68 18 56 10 56 Z" fill="#FFFFFF" stroke="#13233F" stroke-width="7" stroke-linejoin="round"/><path d="M30 40 C52 30 76 26 100 26" fill="none" stroke="#B8DDF3" stroke-width="5" stroke-linecap="round"/><polygon points="100,-6 116,14 100,34 84,14" fill="#FFC23A" stroke="#13233F" stroke-width="6" stroke-linejoin="round"/></svg>
+      <b>Boundora</b>
+    </a>
+    <nav class="tabs" aria-label="Pages">
+      <a href="#home" data-nav="home">Home</a><a href="#play" data-nav="play">Play</a><a href="#heroes" data-nav="heroes">Heroes</a><a href="#market" data-nav="market">Market</a>
+    </nav>
+    <div class="res">
+      <button class="icon-btn" id="mute" aria-label="Sound on" title="Sound"></button>
+      <div id="wallet" style="display:flex;align-items:center;gap:8px"></div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ================= HOME ================= -->
+  <section class="page" id="pg-home" aria-label="Home">
+    <div class="homeband">
+      <svg class="bg" viewBox="0 0 1440 760" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+        <defs><linearGradient id="hm" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#D6EAF7"/></linearGradient></defs>
+        <circle cx="1180" cy="140" r="70" fill="#FFF6D6" opacity=".9"/><circle cx="1180" cy="140" r="120" fill="#FFF6D6" opacity=".25"/>
+        <path d="M0 470 L130 330 L230 400 L380 250 L520 390 L640 300 L760 380 L900 240 L1040 370 L1180 280 L1300 360 L1440 300 V760 H0Z" fill="#A9CDE8"/>
+        <path d="M380 250 L420 300 L400 296 L440 340 L360 300 L340 290Z M900 240 L940 290 L915 286 L960 330 L880 290 L862 282Z M130 330 L160 370 L120 360Z M1180 280 L1210 320 L1170 312Z" fill="#fff" opacity=".9"/>
+        <path d="M0 540 L160 430 L320 500 L480 420 L660 510 L820 440 L1000 520 L1160 450 L1320 510 L1440 470 V760 H0Z" fill="#C9E2F4"/>
+        <g fill="#5B85AD">
+          <path d="M70 560 l26 -70 26 70z"/><path d="M110 575 l22 -58 22 58z"/><path d="M1290 560 l26 -72 26 72z"/><path d="M1340 575 l20 -54 20 54z"/><path d="M1240 585 l18 -48 18 48z"/>
+        </g>
+        <path d="M0 610 Q360 560 720 600 T1440 590 V760 H0Z" fill="url(#hm)"/>
+      </svg>
+      <div class="hcopy">
+        <h1 class="logotype">Boundora</h1>
+        <p>Strike last, hold longest, stake hardest. Win the NEAR pot and 3D heroes that power up your game.</p>
+        <div class="ctas"><a class="btn xl" href="#play">Play now</a><a class="btn xl ice" href="#heroes">Mint a hero</a></div>
+      </div>
+      <canvas id="lineup" aria-label="Three Boundora heroes on a snowy ridge" role="img"></canvas>
+      <div class="livecard panel" id="liveCard" aria-live="off"></div>
+    </div>
+
+    <div class="wrap">
+      <section class="sec" aria-labelledby="winsH">
+        <div class="sec-h"><div><h2 id="winsH">Three ways to win every round</h2><p>When the clock hits zero, the pot is split.</p></div></div>
+        <div class="wins" id="homeWins"></div>
+      </section>
+      <section class="sec" aria-labelledby="rarH">
+        <div class="sec-h"><div><h2 id="rarH">20,000 heroes, five rarities</h2></div><a class="btn" href="#heroes">See the collection</a></div>
+        <div class="rar-row" id="homeRar"></div>
+      </section>
+      <section class="sec" aria-labelledby="howH">
+        <div class="sec-h"><div><h2 id="howH">How a round works</h2></div></div>
+        <ol class="steps">
+          <li class="panel"><b>Get your pass</b><p>$5 in NEAR, one per player. Required to play.</p></li>
+          <li class="panel"><b>Strike</b><p>Each strike adds time and NEAR to the pot.</p></li>
+          <li class="panel"><b>Hold the spot</b><p>The last striker leads.</p></li>
+          <li class="panel"><b>K.O.</b><p>Winners get NEAR and a hero.</p></li>
+        </ol>
+      </section>
+    </div>
+  </section>
+
+  <!-- ================= PLAY ================= -->
+  <section class="page" id="pg-play" aria-label="Play" hidden>
+    <div class="wrap">
+      <div class="arena" id="arena">
+        <svg class="bg" viewBox="0 0 1200 640" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+          <defs><linearGradient id="asky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8FC6EC"/><stop offset=".6" stop-color="#D3ECFA"/><stop offset="1" stop-color="#F2FAFF"/></linearGradient>
+            <linearGradient id="afloor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E9F3FA"/><stop offset="1" stop-color="#C8DDEE"/></linearGradient></defs>
+          <rect width="1200" height="640" fill="url(#asky)"/>
+          <path d="M0 360 L120 250 L230 320 L360 200 L480 310 L600 240 L720 300 L860 190 L980 300 L1100 230 L1200 290 V640 H0Z" fill="#B2D3EC"/>
+          <path d="M360 200 L395 245 L375 242 L410 280 L345 250Z M860 190 L895 236 L872 232 L910 272 L840 240Z" fill="#fff"/>
+          <path d="M0 420 L160 350 L330 400 L520 340 L700 410 L880 350 L1060 405 L1200 370 V640 H0Z" fill="#CFE5F5"/>
+          <path d="M0 470 H1200 V640 H0Z" fill="url(#afloor)"/>
+          <g stroke="#B5CCE0" stroke-width="2"><path d="M600 470 L120 640"/><path d="M600 470 L360 640"/><path d="M600 470 L600 640"/><path d="M600 470 L840 640"/><path d="M600 470 L1080 640"/><path d="M0 520 H1200"/><path d="M0 575 H1200"/></g>
+          <g fill="#8E3324" stroke="#13233F" stroke-width="4"><rect x="60" y="80" width="40" height="400"/><rect x="1100" y="80" width="40" height="400"/></g>
+          <path d="M-20 0 H1220 V58 Q1100 60 1060 92 Q900 70 600 70 Q300 70 140 92 Q100 60 -20 58Z" fill="#3A2A33" stroke="#13233F" stroke-width="4"/>
+          <path d="M-20 0 H1220 V34 Q1100 46 1060 72 Q900 52 600 52 Q300 52 140 72 Q100 46 -20 34Z" fill="#FFFFFF" stroke="#13233F" stroke-width="3"/>
+          <g fill="#fff" stroke="#13233F" stroke-width="2"><path d="M200 66 l5 26 l5 -26z"/><path d="M420 58 l5 22 l5 -22z"/><path d="M760 58 l5 26 l5 -26z"/><path d="M990 64 l5 20 l5 -20z"/></g>
+          <g id="lan"><line x1="190" y1="92" x2="190" y2="130" stroke="#13233F" stroke-width="3"/><ellipse cx="190" cy="160" rx="26" ry="30" fill="#E8503F" stroke="#13233F" stroke-width="3"/><path d="M168 160 H212 M172 146 H208 M172 174 H208" stroke="#9E2E22" stroke-width="2.5"/><rect x="174" y="126" width="32" height="8" rx="3" fill="#13233F"/><rect x="174" y="186" width="32" height="8" rx="3" fill="#13233F"/></g>
+          <use href="#lan" x="820"/>
+        </svg>
+        <canvas class="stage3d" id="arena3d" aria-label="The two leading heroes face off" role="img"></canvas>
+        <canvas class="fx" id="fx"></canvas>
+        <div class="arena-inner">
+          <div class="hudbar">
+            <div class="fighter" id="fL"></div>
+            <div class="timer">
+              <div class="round" id="roundLbl">Round 1</div><br>
+              <div class="digits" id="digits" role="timer" aria-label="Time remaining">0:00</div>
+              <div class="timebar" aria-hidden="true"><i id="timebar"></i></div>
+              <div class="pot"><i>N</i><span id="pot">0</span>&nbsp;NEAR pot</div>
+            </div>
+            <div class="fighter right" id="fR"></div>
+          </div>
+          <div class="combo" id="combo" aria-hidden="true"><b id="comboN">2</b><span>hit combo</span></div>
+        </div>
+        <span class="plate l" id="plL">Waiting</span><span class="plate r" id="plR">Waiting</span>
+        <div class="caller" aria-live="assertive"><div id="caller"></div></div>
+        <div class="ko" id="ko" aria-live="polite"></div>
+      </div>
+
+      <div class="controls">
+        <div class="panel"><div class="panel-h"><h3>Your pass</h3></div><div class="panel-b" id="passBox"></div></div>
+        <div class="panel mid"><div class="panel-h"><h3>Strike</h3></div><div class="panel-b" id="strikeBox"></div></div>
+        <div class="panel"><div class="panel-h"><h3>Your round</h3></div><div class="panel-b" id="meBox"></div></div>
+      </div>
+
+      <section class="sec" aria-labelledby="rosterH">
+        <div class="cols">
+          <div><div class="sec-h"><div><h2 id="rosterH">Fighters this round</h2></div></div><div class="roster" id="roster"></div></div>
+          <div><div class="sec-h"><div><h2>Battle log</h2></div></div><div class="panel"><ul class="log" id="log"></ul></div></div>
+        </div>
+      </section>
+      <section class="sec" aria-labelledby="ladderH">
+        <div class="sec-h"><div><h2 id="ladderH">Prize ladder</h2><p>15% rolls over, 5% to the treasury, 2 Commons raffled.</p></div></div>
+        <div class="ladder">
+          <div class="panel pw"><span class="tag legendary">35% of pot</span><h3 style="margin-top:6px">Final strike</h3><p class="muted" style="margin:4px 0 0">Legendary hero (5% Mythic).</p></div>
+          <div class="panel pw"><span class="tag epic">20% of pot</span><h3 style="margin-top:6px">Iron stance</h3><p class="muted" style="margin:4px 0 0">Epic hero.</p></div>
+          <div class="panel pw"><span class="tag rare">25% of pot</span><h3 style="margin-top:6px">Chi masters</h3><p class="muted" style="margin:4px 0 0">Top 3 stakers. Rare hero each.</p></div>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <!-- ================= HEROES ================= -->
+  <section class="page" id="pg-heroes" aria-label="Heroes" hidden>
+    <div class="wrap">
+      <section class="sec" aria-labelledby="heroesH">
+        <div class="sec-h"><div><h2 id="heroesH">Heroes</h2></div></div>
+        <div class="heroes-top">
+          <div class="panel"><div class="panel-h"><h3>Mint a hero</h3></div><div class="panel-b" id="mintBox"></div></div>
+          <div class="panel"><div class="panel-h"><h3>Your heroes</h3></div><div class="panel-b" id="myHeroes"></div></div>
+        </div>
+        <div class="rar-row" id="powers" style="margin-top:18px"></div>
+      </section>
+      <section class="sec" aria-labelledby="vaultH">
+        <div class="sec-h"><div><h2 id="vaultH">The collection</h2></div>
+          <div class="coltools">
+            <button class="chip" data-f="minted" aria-pressed="true">Minted</button><button class="chip" data-f="mine" aria-pressed="false">Yours</button><button class="chip" data-f="all" aria-pressed="false">All 20,000</button>
+            <select class="ctl" id="rfilter" aria-label="Rarity"><option value="">Any rarity</option><option value="0">Common</option><option value="1">Rare</option><option value="2">Epic</option><option value="3">Legendary</option><option value="4">Mythic</option></select>
+            <input class="ctl" id="findN" type="number" min="1" max="20000" placeholder="Find #" aria-label="Find hero by number">
+          </div></div>
+        <div class="grid" id="vault"></div>
+        <div class="pager" id="pager"></div>
+      </section>
+    </div>
+  </section>
+
+  <!-- ================= MARKET ================= -->
+  <section class="page" id="pg-market" aria-label="Market" hidden>
+    <div class="wrap">
+      <div class="mk-hero">
+        <div class="panel mk-banner"><h1>Hero market</h1><p>Buy, sell and bid on heroes.</p><div class="peek" id="mkPeek" aria-hidden="true"></div></div>
+        <div class="mk-stats" id="mkStats"></div>
+      </div>
+      <div class="floors" id="mkFloors"></div>
+      <div class="mk-grid">
+        <section aria-labelledby="mkListH">
+          <div class="sec-h" style="margin-bottom:12px"><div><h2 id="aucH">Live auctions</h2><p>Highest bid wins when the timer ends.</p></div></div>
+          <div class="lst" id="mkAuctions" style="margin-bottom:30px"></div>
+          <div class="sec-h" style="margin-bottom:12px"><div><h2 id="mkListH">For sale</h2></div>
+            <div class="coltools">
+              <button class="chip" data-m="all" aria-pressed="true">All listings</button><button class="chip" data-m="mine" aria-pressed="false">Yours</button>
+              <select class="ctl" id="mkR" aria-label="Rarity"><option value="">Any rarity</option><option value="0">Common</option><option value="1">Rare</option><option value="2">Epic</option><option value="3">Legendary</option><option value="4">Mythic</option></select>
+              <select class="ctl" id="mkSort" aria-label="Sort"><option value="low">Price: low to high</option><option value="high">Price: high to low</option><option value="new">Newest</option></select>
+            </div></div>
+          <div class="lst" id="mkList"></div>
+        </section>
+        <aside>
+          <div class="panel"><div class="panel-h"><h3>Sell a hero</h3></div><div class="panel-b sellbox" id="sellBox"></div></div>
+          <div class="panel" style="margin-top:18px"><div class="panel-h"><h3>Your bids</h3></div><div class="panel-b"><ul class="sales" id="mkMyBids"></ul></div></div>
+          <div class="panel" style="margin-top:18px"><div class="panel-h"><h3>Recent sales</h3></div><div class="panel-b"><ul class="sales" id="mkSales"></ul></div></div>
+        </aside>
+      </div>
+    </div>
+  </section>
+</main>
+
+<nav class="bottom-nav" aria-label="Pages">
+  <a href="#home" data-nav="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M3 11 L12 4 L21 11 V20 H14 V14 H10 V20 H3Z"/></svg>Home</a>
+  <a href="#play" data-nav="play"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 19 L15 9 M14 4 L20 10 M17 7 L13 3 M9 15 L5 19 M7 13 L11 17"/></svg>Play</a>
+  <a href="#heroes" data-nav="heroes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21 C4 15 20 15 20 21"/></svg>Heroes</a>
+  <a href="#market" data-nav="market"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M4 9 L6 4 H18 L20 9 V20 H4Z M4 9 H20 M9 13 H15"/></svg>Market</a>
+</nav>
+
+<footer><div class="wrap">Boundora, built for the NEAR Hackathon. Demo mode: fast rounds, practice players, no real funds.</div></footer>
+
+<dialog id="dlg" aria-labelledby="dlgH">
+  <div class="dlg">
+    <div class="view" id="dlgFrame"><div id="dlgArt"></div><canvas id="dlgCanvas"></canvas><span class="drag">Drag or flick to spin</span></div>
+    <div class="info">
+      <h3 id="dlgH"></h3><div id="dlgSub" class="muted" style="margin-top:4px"></div>
+      <div class="stars" id="dlgStars" aria-hidden="true"></div>
+      <div id="dlgMight"></div>
+      <div class="powerbox" id="dlgPower"></div>
+      <div class="bidbox" id="dlgBids"></div>
+      <dl id="dlgT"></dl>
+      <div class="links"><span id="dlgAct" style="display:contents"></span><button class="btn ice sm" id="dlgClose">Close</button></div>
+    </div>
+  </div>
+</dialog>
+<div class="toast" id="toast" role="status"></div>
