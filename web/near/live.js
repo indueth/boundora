@@ -388,4 +388,4 @@ async function showClaimResult(N, claim) {
   if (ok) { SFX.play("coin"); log(`You claimed ${claim.name}`, "me"); }
 }
 
-if (typeof location !== "undefined" && !new URLSearchParams(location.search).has("demo")) start();
+if (typeof location !== "undefined") start(); // always on NEAR testnet

@@ -19,8 +19,6 @@ Built for the NEAR Hackathon, track **NFTs That Do Something**. It runs on testn
 6. **Win heroes and NEAR.** Claim your winnings, equip a hero for its power, give it gear, open its own NEAR account, or sell it on the market.
 7. Optional: **claim a NEAR name** like `alice.testnet` straight from the game.
 
-Want to practise first? **https://boundora.xyz/?demo** runs an offline round against practice bots, with no wallet needed.
-
 ## How Boundora fits "NFTs That Do Something"
 
 | Track ask | Boundora |
@@ -125,4 +123,3 @@ After changing `web/near/boundora-near.js`, rebuild the bundled wallet code with
 
 - Randomness for the raffle and art seeds uses `env::random_seed()`. That's fine for a testnet game, but block producers can influence it.
 - Each round stores its players in one vector, capped at 150, so settlement fits in gas. For more players, move to paginated settlement.
-- In the `?demo` practice mode, the hash function stands in for sha256. Art seeds from the real contract are true sha256 hashes.

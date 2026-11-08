@@ -417,8 +417,8 @@ const CFG = {
   heroPrice: 2, maxHeroMints: 5
 };
 let ME = "you.testnet"; // live mode (near/live.js) swaps in the signed-in account
-// Testnet by default; ?demo runs the offline practice simulation with bots.
-const LIVE = !/[?&]demo/.test(location.search);
+// The site always plays on NEAR testnet; the offline simulation code below is not reachable.
+const LIVE = true;
 const BOTS = LIVE ? [] : [
   {id:"aurora.near", passes:2, eager:1.0},
   {id:"kepler.near", passes:1, eager:0.8},
