@@ -84,7 +84,7 @@ Each hero token is `hero-N` and stores `{"number","rarity","won_for","cycle","re
 cd contract
 cargo test                         # 62 unit tests
 (cd ../vault && cargo test)        # 3 unit tests for the hero account contract
-rustup toolchain install 1.86      # near-sdk recommends <= 1.86 for wasm builds
+rustup toolchain install stable    # near-sdk 5.30 needs rustc >= 1.95
 cargo near build                   # install with: cargo install cargo-near
 near contract deploy boundora.testnet use-file target/near/boundora.wasm \
   with-init-call new json-args '{"owner_id":"you.testnet"}' \
@@ -118,14 +118,18 @@ Fund the contract account with a few NEAR so it can cover storage before the fir
 - Each cycle stores its players in one vector, capped at 150, so settlement fits in gas. For more players, move to paginated settlement.
 - In the browser demo, the hash function stands in for sha256. Art seeds from the real contract are true sha256 hashes.
 
+## Run everything from this machine
+
+`scripts/local.sh` (Git Bash on Windows) runs the tests, builds both wasm files (embedding the real hero-account contract), creates the testnet account from the faucet if needed, deploys with `scripts/deploy.mjs` (near-api-js, no near CLI) (calling `new` the first time), posts the NEAR/USD price and serves the page at `http://localhost:8000/index.html?live`. Run one step with `scripts/local.sh test|build|deploy|price|serve`. It needs Rust stable with the `wasm32-unknown-unknown` target, Node, Python, and the key file `~/.near-credentials/testnet/<contract>.json`. Set `NEAR_CONTRACT_ID` to use another account.
+
 ## Deploying to testnet with GitHub Actions
 
 1. Create a testnet account for the contract, for example with MyNearWallet or `near account create-account sponsor-by-faucet-service boundora-yourname.testnet ...`, and export its full-access key pair.
 2. Push this folder to a public GitHub repo (judges need it public anyway).
 3. In the repo, go to Settings > Secrets and variables > Actions and add `NEAR_CONTRACT_ID`, `NEAR_PUBLIC_KEY` and `NEAR_PRIVATE_KEY`.
-4. In the Actions tab, run **Deploy to NEAR testnet** with **init** ticked. The workflow tests, builds with cargo-near on Rust 1.86, deploys, and reads `get_cycle` back as a check.
+4. In the Actions tab, run **Deploy to NEAR testnet** with **init** ticked. The workflow tests, builds with cargo-near on stable Rust, deploys, and reads `get_cycle` back as a check.
 5. After that, every push that changes `contract/` redeploys the code and keeps the existing state.
 
 ## Keeping the $5 pass price accurate
 
-The NEAR/USD rate comes from Pyth's NEAR/USD feed (`c415de8d…6750`). `.github/workflows/price-keeper.yml` fetches it from Pyth's Hermes API every 30 minutes and posts it with `set_near_usd_price`. The deploy workflow posts the first price straight after deploying. If no price is posted for 6 hours, `mint_pass` pauses instead of charging a stale amount. To sign prices from a separate account, call `set_price_keeper`.
+The NEAR/USD rate comes from Pyth's NEAR/USD feed (`c415de8d…6750`). `.github/workflows/price-keeper.yml` fetches it from Pyth's Hermes API every 30 minutes and posts it with `set_near_usd_price`. The deploy workflow posts the first price straight after deploying. Public Hermes now returns 401 without a key, so the script sends `PYTH_API_KEY` as a bearer token when it is set and otherwise falls back to the Coinbase NEAR-USD spot price. If no price is posted for 6 hours, `mint_pass` pauses instead of charging a stale amount. To sign prices from a separate account, call `set_price_keeper`.
