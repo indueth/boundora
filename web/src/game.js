@@ -1091,7 +1091,7 @@ function openHero(n,fresh){
   }else if(lst){h+=`<button class="btn btn-gold" id="dlgBuy">Buy for ${fmt(lst.price)} NEAR</button> `;}
   act.innerHTML=h;
   if($("equipBtn"))$("equipBtn").onclick=()=>{S.equipped.set(ME,n);SFX.play("coin");toast(`Equipped #${n}. ${t.power}.`);log(`You equipped hero #${n}`,"me");$("dlg").close();renderAll();};
-  if($("dlgSell"))$("dlgSell").onclick=()=>{sellN=n;$("dlg").close();location.hash="#market";renderMarket(true);$("sellBox").scrollIntoView({behavior:"smooth"});};
+  if($("dlgSell"))$("dlgSell").onclick=()=>{sellN=n;$("dlg").close();go("/market");renderMarket(true);$("sellBox").scrollIntoView({behavior:"smooth"});};
   if($("dlgDelist"))$("dlgDelist").onclick=()=>{delistHero(ME,n);toast(`Hero #${n} delisted.`);$("dlg").close();renderAll();};
   if($("dlgBuy"))$("dlgBuy").onclick=()=>{$("dlg").close();doBuy(n);};
   if(!$("dlg").open)$("dlg").showModal();
@@ -1161,7 +1161,7 @@ function route(){
   $("navArena").setAttribute("aria-current",m?"false":"page");$("navMarket").setAttribute("aria-current",m?"page":"false");
   if(m){renderMarket(true);}else{sizeSky();sizeFx();setLiveSeed(live.seed||S.cycle.seed,true);}
 }
-addEventListener("hashchange",route);
+// navigation is handled by go()/popstate in overrides.js
 
 function renderAll(){const f=document.activeElement&&document.activeElement.id;
   renderWallet();renderPass();renderStrike();renderMe();renderRoster();renderLog();renderMint();renderMyHeroes();renderVault();renderMarket();hudKey="";renderHud();

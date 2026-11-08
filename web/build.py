@@ -58,7 +58,7 @@ html = f"""<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Boundora</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20240%20240%22%3E%3Crect%20x%3D%2212%22%20y%3D%2212%22%20width%3D%22216%22%20height%3D%22216%22%20rx%3D%2254%22%20fill%3D%22%232A5590%22%20stroke%3D%22%2313233F%22%20stroke-width%3D%2214%22/%3E%3Cpolygon%20points%3D%2240%2C226%2082%2C226%20228%2C76%20228%2C34%22%20fill%3D%22%23FF8A1F%22/%3E%3Cpath%20d%3D%22M78%2056h62c34%200%2052%2016%2052%2040%200%2014-8%2025-20%2030%2016%205%2026%2018%2026%2034%200%2028-22%2044-56%2044H78z%22%20fill%3D%22%23fff%22%20stroke%3D%22%2313233F%22%20stroke-width%3D%2214%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E">
-<link rel="stylesheet" href="near/wallet-modal.css">
+<link rel="stylesheet" href="/near/wallet-modal.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Titan+One&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
@@ -76,7 +76,7 @@ html = f"""<!DOCTYPE html>
 <script type="module">
 {hero3d}
 </script>
-<script type="module" src="near/live.js"></script>
+<script type="module" src="/near/live.js"></script>
 </body>
 </html>
 """

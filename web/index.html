@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Boundora</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20240%20240%22%3E%3Crect%20x%3D%2212%22%20y%3D%2212%22%20width%3D%22216%22%20height%3D%22216%22%20rx%3D%2254%22%20fill%3D%22%232A5590%22%20stroke%3D%22%2313233F%22%20stroke-width%3D%2214%22/%3E%3Cpolygon%20points%3D%2240%2C226%2082%2C226%20228%2C76%20228%2C34%22%20fill%3D%22%23FF8A1F%22/%3E%3Cpath%20d%3D%22M78%2056h62c34%200%2052%2016%2052%2040%200%2014-8%2025-20%2030%2016%205%2026%2018%2026%2034%200%2028-22%2044-56%2044H78z%22%20fill%3D%22%23fff%22%20stroke%3D%22%2313233F%22%20stroke-width%3D%2214%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E">
-<link rel="stylesheet" href="near/wallet-modal.css">
+<link rel="stylesheet" href="/near/wallet-modal.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Titan+One&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
@@ -423,12 +423,12 @@ footer{margin-top:56px;padding:26px 0 40px;border-top:3px solid var(--ink);color
 <body>
 <header class="topbar">
   <div class="wrap">
-    <a class="brand" href="#home" aria-label="Boundora home">
+    <a class="brand" href="/" aria-label="Boundora home">
       <svg class="crest" width="36" height="46" viewBox="0 -12 200 256" aria-hidden="true"><defs><clipPath id="crestA"><path d="M100 22 C140 22 170 30 186 40 L186 120 C186 175 150 210 100 232 C50 210 14 175 14 120 L14 40 C30 30 60 22 100 22 Z"/></clipPath></defs><path d="M100 30 C140 30 170 38 186 48 L186 128 C186 183 150 218 100 240 C50 218 14 183 14 128 L14 48 C30 38 60 30 100 30 Z" fill="#13233F"/><path d="M100 22 C140 22 170 30 186 40 L186 120 C186 175 150 210 100 232 C50 210 14 175 14 120 L14 40 C30 30 60 22 100 22 Z" fill="#2A5590" stroke="#13233F" stroke-width="9" stroke-linejoin="round"/><g clip-path="url(#crestA)"><rect x="100" y="0" width="100" height="240" fill="#1D3D6B"/><polygon points="14,214 54,214 196,62 196,22 186,22" fill="#FF8A1F" stroke="#13233F" stroke-width="7" stroke-linejoin="round"/><polygon points="34,200 46,200 186,52 186,40" fill="#FFB24D"/></g><text x="100" y="186" text-anchor="middle" font-family="'Lilita One', 'Arial Black', sans-serif" font-size="134" fill="#FFFFFF" stroke="#13233F" stroke-width="12" stroke-linejoin="round" paint-order="stroke">B</text><path d="M10 42 C28 28 60 16 100 16 C140 16 172 28 190 42 L190 56 C182 58 178 70 168 70 C158 70 156 58 146 58 C136 58 134 80 122 80 C110 80 110 60 100 60 C90 60 88 74 78 74 C68 74 66 58 56 58 C46 58 42 68 32 68 C22 68 18 56 10 56 Z" fill="#FFFFFF" stroke="#13233F" stroke-width="7" stroke-linejoin="round"/><path d="M30 40 C52 30 76 26 100 26" fill="none" stroke="#B8DDF3" stroke-width="5" stroke-linecap="round"/><polygon points="100,-6 116,14 100,34 84,14" fill="#FFC23A" stroke="#13233F" stroke-width="6" stroke-linejoin="round"/></svg>
       <b>Boundora</b>
     </a>
     <nav class="tabs" aria-label="Pages">
-      <a href="#home" data-nav="home">Home</a><a href="#play" data-nav="play">Play</a><a href="#heroes" data-nav="heroes">Heroes</a><a href="#market" data-nav="market">Market</a>
+      <a href="/" data-nav="home">Home</a><a href="/play" data-nav="play">Play</a><a href="/heroes" data-nav="heroes">Heroes</a><a href="/market" data-nav="market">Market</a>
     </nav>
     <div class="res">
       <button class="icon-btn" id="mute" aria-label="Sound on" title="Sound"></button>
@@ -455,7 +455,7 @@ footer{margin-top:56px;padding:26px 0 40px;border-top:3px solid var(--ink);color
       <div class="hcopy">
         <h1 class="logotype">Boundora</h1>
         <p>Strike last, hold longest, stake hardest. Win the NEAR pot and 3D heroes that power up your game.</p>
-        <div class="ctas"><a class="btn xl" href="#play">Play now</a><a class="btn xl ice" href="#heroes">Mint a hero</a></div>
+        <div class="ctas"><a class="btn xl" href="/play">Play now</a><a class="btn xl ice" href="/heroes">Mint a hero</a></div>
       </div>
       <canvas id="lineup" aria-label="Three Boundora heroes on a snowy ridge" role="img"></canvas>
       <div class="livecard panel" id="liveCard" aria-live="off"></div>
@@ -467,7 +467,7 @@ footer{margin-top:56px;padding:26px 0 40px;border-top:3px solid var(--ink);color
         <div class="wins" id="homeWins"></div>
       </section>
       <section class="sec" aria-labelledby="rarH">
-        <div class="sec-h"><div><h2 id="rarH">20,000 heroes, five rarities</h2></div><a class="btn" href="#heroes">See the collection</a></div>
+        <div class="sec-h"><div><h2 id="rarH">20,000 heroes, five rarities</h2></div><a class="btn" href="/heroes">See the collection</a></div>
         <div class="rar-row" id="homeRar"></div>
       </section>
       <section class="sec" aria-labelledby="howH">
@@ -600,10 +600,10 @@ footer{margin-top:56px;padding:26px 0 40px;border-top:3px solid var(--ink);color
 </main>
 
 <nav class="bottom-nav" aria-label="Pages">
-  <a href="#home" data-nav="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M3 11 L12 4 L21 11 V20 H14 V14 H10 V20 H3Z"/></svg>Home</a>
-  <a href="#play" data-nav="play"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 19 L15 9 M14 4 L20 10 M17 7 L13 3 M9 15 L5 19 M7 13 L11 17"/></svg>Play</a>
-  <a href="#heroes" data-nav="heroes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21 C4 15 20 15 20 21"/></svg>Heroes</a>
-  <a href="#market" data-nav="market"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M4 9 L6 4 H18 L20 9 V20 H4Z M4 9 H20 M9 13 H15"/></svg>Market</a>
+  <a href="/" data-nav="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M3 11 L12 4 L21 11 V20 H14 V14 H10 V20 H3Z"/></svg>Home</a>
+  <a href="/play" data-nav="play"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 19 L15 9 M14 4 L20 10 M17 7 L13 3 M9 15 L5 19 M7 13 L11 17"/></svg>Play</a>
+  <a href="/heroes" data-nav="heroes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21 C4 15 20 15 20 21"/></svg>Heroes</a>
+  <a href="/market" data-nav="market"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M4 9 L6 4 H18 L20 9 V20 H4Z M4 9 H20 M9 13 H15"/></svg>Market</a>
 </nav>
 
 <footer><div class="wrap">Boundora, built for the NEAR Hackathon. Runs on NEAR testnet.</div></footer>
@@ -1534,7 +1534,7 @@ function openHero(n,fresh){
   }else if(lst){h+=`<button class="btn sm" id="dlgBuy">Buy for ${fmt(lst.price)} NEAR</button> `;}
   act.innerHTML=h;
   if($("equipBtn"))$("equipBtn").onclick=()=>{S.equipped.set(ME,n);SFX.play("coin");toast(`Equipped #${n}. ${t.power}.`);log(`You equipped hero #${n}`,"me");$("dlg").close();renderAll();};
-  if($("dlgSell"))$("dlgSell").onclick=()=>{sellN=n;$("dlg").close();location.hash="#market";renderMarket(true);$("sellBox").scrollIntoView({behavior:"smooth"});};
+  if($("dlgSell"))$("dlgSell").onclick=()=>{sellN=n;$("dlg").close();go("/market");renderMarket(true);$("sellBox").scrollIntoView({behavior:"smooth"});};
   if($("dlgDelist"))$("dlgDelist").onclick=()=>{delistHero(ME,n);toast(`Hero #${n} delisted.`);$("dlg").close();renderAll();};
   if($("dlgBuy"))$("dlgBuy").onclick=()=>{$("dlg").close();doBuy(n);};
   if(!$("dlg").open)$("dlg").showModal();
@@ -1604,7 +1604,7 @@ function route(){
   $("navArena").setAttribute("aria-current",m?"false":"page");$("navMarket").setAttribute("aria-current",m?"page":"false");
   if(m){renderMarket(true);}else{sizeSky();sizeFx();setLiveSeed(live.seed||S.cycle.seed,true);}
 }
-addEventListener("hashchange",route);
+// navigation is handled by go()/popstate in overrides.js
 
 function renderAll(){const f=document.activeElement&&document.activeElement.id;
   renderWallet();renderPass();renderStrike();renderMe();renderRoster();renderLog();renderMint();renderMyHeroes();renderVault();renderMarket();renderAuctions(true);hudKey="";renderHud();
@@ -1683,7 +1683,7 @@ function renderHome(){
 function renderLive(){
   const c=S.cycle,cool=S.now<c.opensAt,rem=cool?c.opensAt-S.now:Math.max(0,c.endsAt-S.now);
   $("liveCard").innerHTML=`<div class="panel-b"><div><small><span class="dot"></span>Round ${c.id} ${cool?"starts in":"is live"}</small><div class="t">${Math.floor(rem/60)}:${String(Math.floor(rem%60)).padStart(2,"0")}</div></div>
-    <div><small>Pot</small><div class="t" style="font-size:1.45rem">${fmt(c.pool)} NEAR</div><small>${c.last?`Leading: ${short(c.last)}`:"No strikes yet"}</small></div><a class="btn" href="#play">Join</a></div>`;
+    <div><small>Pot</small><div class="t" style="font-size:1.45rem">${fmt(c.pool)} NEAR</div><small>${c.last?`Leading: ${short(c.last)}`:"No strikes yet"}</small></div><a class="btn" href="/play">Join</a></div>`;
 }
 
 /* roster */
@@ -1745,7 +1745,7 @@ function openHero(n,fresh){
   else if(lst)h+=`<button class="btn sm" id="dlgBuy">Buy for ${fmt(lst.price)} NEAR</button>`;
   $("dlgAct").innerHTML=h;
   if($("equipBtn"))$("equipBtn").onclick=()=>{const err=equipHero(n);if(err){$("dlg").close();return toast(err);}SFX.play("coin");toast(`Equipped #${n}. ${t.power}.`);log(`You equipped hero #${n}`,"me");$("dlg").close();syncArena();renderAll();};
-  if($("dlgSell"))$("dlgSell").onclick=()=>{sellN=n;$("dlg").close();location.hash="#market";};
+  if($("dlgSell"))$("dlgSell").onclick=()=>{sellN=n;$("dlg").close();go("/market");};
   if($("dlgDelist"))$("dlgDelist").onclick=()=>{delistHero(ME,n);toast(`Hero #${n} delisted.`);$("dlg").close();renderAll();};
   if($("dlgAcct"))$("dlgAcct").onclick=()=>{const err=openAccount(ME,n);if(err)return toast(err);SFX.play("coin");toast(`Hero #${n} now has its own NEAR account.`);openHero(n);renderAll();};
   $("dlgPower").querySelectorAll("[data-buy]").forEach(b=>b.onclick=()=>{const err=buyGear(ME,n,+b.dataset.buy);if(err)return toast(err);SFX.play("coin");toast(`${GEAR[+b.dataset.buy].name} added to hero #${n}.`);openHero(n);renderAll();});
@@ -1758,9 +1758,16 @@ function openHero(n,fresh){
 $("dlg").addEventListener("close",()=>{if(viewer)viewer.stop();});
 
 /* routing: Home, Play, Heroes, Market */
+// Clean URLs: /, /play, /heroes, /market (Vercel serves index.html for each). Old #play links forward to /play.
+const PAGES=["home","play","heroes","market"];
+function go(path){if(location.pathname!==path)history.pushState(null,"",path);route();}
+document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest("a[href]");if(!a||a.target||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
+  const h=a.getAttribute("href");if(!/^\/(play|heroes|market)?$/.test(h))return;e.preventDefault();go(h);});
+addEventListener("popstate",()=>route());
 function route(){
-  const p=(location.hash||"#home").slice(1),pages=["home","play","heroes","market"],cur=pages.includes(p)?p:"home";
-  pages.forEach(x=>$("pg-"+x).hidden=x!==cur);
+  const old=(location.hash||"").slice(1);if(PAGES.includes(old))history.replaceState(null,"",old==="home"?"/":"/"+old);
+  const p=location.pathname.replace(/^\/+|\/+$/g,"")||"home",cur=PAGES.includes(p)?p:"home";
+  PAGES.forEach(x=>$("pg-"+x).hidden=x!==cur);
   document.querySelectorAll("[data-nav]").forEach(a=>a.setAttribute("aria-current",a.dataset.nav===cur?"page":"false"));
   if(cur==="market"){renderMarket(true);renderAuctions(true);}if(cur==="play")sizeFx();if(cur==="home")renderHome();if(cur==="heroes")renderVault(true);
   window.scrollTo(0,0);
@@ -2307,6 +2314,6 @@ window.Hero3D = { thumb, cached: N => thumbCache.get(N), Viewer, Stage, buildHer
 window.dispatchEvent(new Event("hero3d-ready"));
 
 </script>
-<script type="module" src="near/live.js"></script>
+<script type="module" src="/near/live.js"></script>
 </body>
 </html>

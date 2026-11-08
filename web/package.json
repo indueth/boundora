@@ -17,7 +17,7 @@
     "@near-wallet-selector/my-near-wallet": "^8.10.2",
     "buffer": "^6.0.3",
     "esbuild": "^0.28.2",
-    "near-api-js": "^4.0.4",
+    "near-api-js": "^4.0.3",
     "util": "^0.12.5"
   },
   "private": true

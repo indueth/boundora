@@ -71,7 +71,7 @@ function renderHome(){
 function renderLive(){
   const c=S.cycle,cool=S.now<c.opensAt,rem=cool?c.opensAt-S.now:Math.max(0,c.endsAt-S.now);
   $("liveCard").innerHTML=`<div class="panel-b"><div><small><span class="dot"></span>Round ${c.id} ${cool?"starts in":"is live"}</small><div class="t">${Math.floor(rem/60)}:${String(Math.floor(rem%60)).padStart(2,"0")}</div></div>
-    <div><small>Pot</small><div class="t" style="font-size:1.45rem">${fmt(c.pool)} NEAR</div><small>${c.last?`Leading: ${short(c.last)}`:"No strikes yet"}</small></div><a class="btn" href="#play">Join</a></div>`;
+    <div><small>Pot</small><div class="t" style="font-size:1.45rem">${fmt(c.pool)} NEAR</div><small>${c.last?`Leading: ${short(c.last)}`:"No strikes yet"}</small></div><a class="btn" href="/play">Join</a></div>`;
 }
 
 /* roster */
@@ -133,7 +133,7 @@ function openHero(n,fresh){
   else if(lst)h+=`<button class="btn sm" id="dlgBuy">Buy for ${fmt(lst.price)} NEAR</button>`;
   $("dlgAct").innerHTML=h;
   if($("equipBtn"))$("equipBtn").onclick=()=>{const err=equipHero(n);if(err){$("dlg").close();return toast(err);}SFX.play("coin");toast(`Equipped #${n}. ${t.power}.`);log(`You equipped hero #${n}`,"me");$("dlg").close();syncArena();renderAll();};
-  if($("dlgSell"))$("dlgSell").onclick=()=>{sellN=n;$("dlg").close();location.hash="#market";};
+  if($("dlgSell"))$("dlgSell").onclick=()=>{sellN=n;$("dlg").close();go("/market");};
   if($("dlgDelist"))$("dlgDelist").onclick=()=>{delistHero(ME,n);toast(`Hero #${n} delisted.`);$("dlg").close();renderAll();};
   if($("dlgAcct"))$("dlgAcct").onclick=()=>{const err=openAccount(ME,n);if(err)return toast(err);SFX.play("coin");toast(`Hero #${n} now has its own NEAR account.`);openHero(n);renderAll();};
   $("dlgPower").querySelectorAll("[data-buy]").forEach(b=>b.onclick=()=>{const err=buyGear(ME,n,+b.dataset.buy);if(err)return toast(err);SFX.play("coin");toast(`${GEAR[+b.dataset.buy].name} added to hero #${n}.`);openHero(n);renderAll();});
@@ -146,9 +146,16 @@ function openHero(n,fresh){
 $("dlg").addEventListener("close",()=>{if(viewer)viewer.stop();});
 
 /* routing: Home, Play, Heroes, Market */
+// Clean URLs: /, /play, /heroes, /market (Vercel serves index.html for each). Old #play links forward to /play.
+const PAGES=["home","play","heroes","market"];
+function go(path){if(location.pathname!==path)history.pushState(null,"",path);route();}
+document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest("a[href]");if(!a||a.target||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
+  const h=a.getAttribute("href");if(!/^\/(play|heroes|market)?$/.test(h))return;e.preventDefault();go(h);});
+addEventListener("popstate",()=>route());
 function route(){
-  const p=(location.hash||"#home").slice(1),pages=["home","play","heroes","market"],cur=pages.includes(p)?p:"home";
-  pages.forEach(x=>$("pg-"+x).hidden=x!==cur);
+  const old=(location.hash||"").slice(1);if(PAGES.includes(old))history.replaceState(null,"",old==="home"?"/":"/"+old);
+  const p=location.pathname.replace(/^\/+|\/+$/g,"")||"home",cur=PAGES.includes(p)?p:"home";
+  PAGES.forEach(x=>$("pg-"+x).hidden=x!==cur);
   document.querySelectorAll("[data-nav]").forEach(a=>a.setAttribute("aria-current",a.dataset.nav===cur?"page":"false"));
   if(cur==="market"){renderMarket(true);renderAuctions(true);}if(cur==="play")sizeFx();if(cur==="home")renderHome();if(cur==="heroes")renderVault(true);
   window.scrollTo(0,0);
