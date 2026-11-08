@@ -2,7 +2,7 @@
 
 **Every gesture extends the clock. Top players claim the orbit.**
 
-**▶ Play now: [boundora.vercel.app](https://boundora.vercel.app)**
+**▶ Play now: [boundora.xyz](https://boundora.xyz)**
 
 Boundora is a competitive, round-based game on **NEAR testnet**, with a 20,000-piece hero NFT collection whose heroes have real powers in the game. Mint a soulbound Boundora Pass, pay NEAR to *strike*, and each strike pushes the countdown back. When the clock hits zero, the top players split the pot and win **Boundora Heroes**: NFTs that level up, carry gear, hold their own money and can even have their own NEAR account.
 
@@ -11,15 +11,15 @@ Built for the NEAR Hackathon, track **NFTs That Do Something**. It runs on testn
 ## How to play
 
 1. **Get a testnet wallet:** [MyNearWallet (testnet)](https://testnet.mynearwallet.com) or [Meteor Wallet](https://wallet.meteorwallet.app) (switch it to testnet).
-   Meteor's web wallet signs each action in a small pop-up window, so **allow pop-ups for boundora.vercel.app** (or use the Meteor browser extension, or MyNearWallet, which needs no pop-ups).
+   Meteor's web wallet signs each action in a small pop-up window, so **allow pop-ups for boundora.xyz** (or use the Meteor browser extension, or MyNearWallet, which needs no pop-ups).
 2. **Get free test NEAR** from a faucet such as [near-faucet.io](https://near-faucet.io).
-3. Open **https://boundora.vercel.app** and click **Connect wallet**.
+3. Open **https://boundora.xyz** and click **Connect wallet**.
 4. **Mint your pass** (0.01 test NEAR, one per player, soulbound). It's your membership card and it records your rounds, strikes and wins.
 5. **Strike!** Each strike costs a little NEAR and adds time to the clock. Be the last to strike when it hits zero, hold the spot longest, or stake the most.
 6. **Win heroes and NEAR.** Claim your winnings, equip a hero for its power, give it gear, open its own NEAR account, or sell it on the market.
 7. Optional: **claim a NEAR name** like `alice.testnet` straight from the game.
 
-Want to practise first? **https://boundora.vercel.app/?demo** runs an offline round against practice bots, with no wallet needed.
+Want to practise first? **https://boundora.xyz/?demo** runs an offline round against practice bots, with no wallet needed.
 
 ## How Boundora fits "NFTs That Do Something"
 
@@ -104,7 +104,7 @@ Each hero token is `hero-N` and stores `{"number","rarity","won_for","cycle","re
 |---|---|
 | `contract/` | Rust smart contract (near-sdk 5.30): rounds, strikes, ranking, payouts, soulbound passes, NFT locking, the 20,000 Boundora Heroes (NEP-171, NEP-199 royalties, approvals) with equippable powers, levels, gear inventories, their own NEAR vaults and optional sub-accounts; the pass is a soulbound NEP-171 token. 64 unit tests. |
 | `vault/` | The small contract deployed inside each hero's own NEAR account (`hero-N.boundora.testnet`). 3 unit tests. `res/vault.wasm` is the compiled contract, embedded in the main contract, which deploys it into each new hero account. |
-| `web/` | The game, served at https://boundora.vercel.app: a fighting-game HUD, Round/Fight/K.O. calls, combo counter, hit effects and sound, belts and a chi gauge, heroes as the fighters, hero minting and equipping, a market, and a browser for all 20,000 heroes. `web/near/live.js` turns every action into a contract call; `web/hero3d.js` renders the 3D heroes; `web/heroes.js` generates them. |
+| `web/` | The game, served at https://boundora.xyz: a fighting-game HUD, Round/Fight/K.O. calls, combo counter, hit effects and sound, belts and a chi gauge, heroes as the fighters, hero minting and equipping, a market, and a browser for all 20,000 heroes. `web/near/live.js` turns every action into a contract call; `web/hero3d.js` renders the 3D heroes; `web/heroes.js` generates them. |
 | `collection/` | Full metadata for all 20,000 heroes, trait counts, sample SVGs and a preview image. |
 | `scripts/` | `e2e-testnet.mjs` (the on-chain check above), `deploy.mjs` (deploys and configures the contract), `export-collection.js` (writes `collection/`). |
 | `.github/workflows/` | Builds the contract and deploys it to NEAR testnet from GitHub Actions. |
