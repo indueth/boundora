@@ -4,11 +4,10 @@ import { setupWalletSelector } from "@near-wallet-selector/core";
 import { setupModal } from "@near-wallet-selector/modal-ui";
 import { setupMyNearWallet } from "@near-wallet-selector/my-near-wallet";
 import { setupMeteorWallet } from "@near-wallet-selector/meteor-wallet";
-import { providers, utils } from "near-api-js";
+import { providers, utils, KeyPair } from "near-api-js";
 
-export const CONTRACT_ID = "boundora-okafor.testnet";       // your deployed contract
-const NETWORK = "testnet";
-const RPC = "https://rpc.testnet.near.org";
+import { CONTRACT_ID, NETWORK, RPC } from "./config.js";
+export { CONTRACT_ID };
 const TGAS = (n) => String(n * 1e12);
 
 const rpc = new providers.JsonRpcProvider({ url: RPC });
@@ -73,4 +72,23 @@ export const passQuote  = () => view("pass_quote");
 export async function balanceOf(account_id) {
   const a = await rpc.query({ request_type: "view_account", finality: "final", account_id });
   return a.amount;
+}
+
+// ---------- NEAR names: alice.testnet on testnet, alice.near on mainnet, via NEAR's own registrar
+const REGISTRAR = NETWORK === "mainnet" ? "near" : "testnet";
+export const NAME_SUFFIX = "." + REGISTRAR;
+export const NAME_DEPOSIT_NEAR = "0.1"; // goes into the new account
+export function newKeyPair() {
+  const kp = KeyPair.fromRandom("ed25519");
+  return { publicKey: kp.getPublicKey().toString(), secretKey: kp.toString() };
+}
+// Signed by the connected wallet. The registrar returns false and refunds if the name was taken meanwhile.
+export async function claimName(name, publicKey) {
+  const wallet = await selector.wallet();
+  return wallet.signAndSendTransaction({
+    receiverId: REGISTRAR,
+    actions: [{ type: "FunctionCall", params: { methodName: "create_account",
+      args: { new_account_id: name + NAME_SUFFIX, new_public_key: publicKey },
+      gas: TGAS(30), deposit: utils.format.parseNearAmount(NAME_DEPOSIT_NEAR) } }],
+  });
 }

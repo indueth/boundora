@@ -12,3 +12,8 @@ assert.equal(now, 100); assert.equal(cycle.endsAt, 160); assert.equal(cycle.pool
 assert.equal(cycle.players[0].held, 15); // 25 s minus the 10 s live hold the page adds back
 assert.equal(cycle.players[1].held, 40); assert.equal(cycle.players[1].volume, 0.5);
 console.log("live.test ok");
+
+import { validName } from "./live.js";
+for (const ok of ["alice", "a1", "bob-the_3", "x".repeat(56)]) assert.ok(validName(ok, ".testnet"), ok);
+for (const bad of ["a", "Alice", "-bob", "bob-", "bo--b", "b_-b", "al.ice", "al ice", "x".repeat(57)]) assert.ok(!validName(bad, ".testnet"), bad);
+console.log("validName ok");

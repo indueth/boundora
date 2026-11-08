@@ -97,7 +97,9 @@ Fund the contract account with a few NEAR so it can cover storage before the fir
 
 `web/index.html` is self-contained, with no build step. It runs the local simulation by default.
 
-**Live mode:** serve `web/` over HTTP (for example `python -m http.server -d web`) and open `index.html?live`. `web/near/live.js` then plays against the deployed contract (`CONTRACT_ID` in `web/near/boundora-near.js`): wallet sign-in (MyNearWallet, Meteor), the clock, pot and fighters from `get_cycle` every second, pass minting at the `pass_quote` price, strikes, finalize and claim. The market, auctions, gear, hero minting, NFT locking and round history are still simulated in live mode. `node web/near/live.test.mjs` checks the chain-to-page mapping.
+**Live mode:** serve `web/` over HTTP (for example `python -m http.server -d web`) and open `index.html?live`. `web/near/live.js` then plays against the deployed contract (`CONTRACT_ID` and `NETWORK` in `web/near/config.js`): wallet sign-in (MyNearWallet, Meteor), the clock, pot and fighters from `get_cycle` every second, pass minting at the `pass_quote` price, strikes, finalize and claim. Chain reads use plain `fetch`, so the game goes live before the wallet libraries finish loading.
+
+**NEAR names:** a connected player can claim a top-level name (`alice.testnet` on testnet, `alice.near` with `NETWORK = "mainnet"`) through NEAR's own registrar (`create_account` on `testnet` / `near`). The page checks the name is free, makes a new key pair in the browser and shows it (copy or download) before the player signs; 0.1 NEAR from their wallet goes into the new account. The player then imports the name into MyNearWallet or Meteor with that key. If the wallet redirects mid-claim, the result is shown when the page comes back. The market, auctions, gear, hero minting, NFT locking and round history are still simulated in live mode. `node web/near/live.test.mjs` checks the chain-to-page mapping.
 
 ## How Boundora fits "NFTs That Do Something"
 
