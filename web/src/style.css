@@ -412,3 +412,8 @@ footer{margin-top:56px;padding:26px 0 40px;border-top:3px solid var(--ink);color
 .pc-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .pc-h b{font-family:var(--display);font-size:1.15rem;font-weight:400}
 .passcard>small{display:block;color:#33476A;font-size:.82rem;margin-top:4px}
+
+/* explorer links and NFT-feature tags */
+.xl{color:inherit;text-decoration:underline;text-underline-offset:2px}
+.xl:hover{color:var(--fire-lo)}
+.tag.vt{background:#E3F7EC;color:var(--ink);text-shadow:none}

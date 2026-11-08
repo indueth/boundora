@@ -94,6 +94,12 @@ async function pmap(items, k, fn) {
 }
 
 function installNftLayer({ view, wallet }) {
+  const setStats = s => {
+    S.statsVer = (S.statsVer || 0) + 1; // hero grids redraw when vault, gear or account change
+    if (s.owner_id) S.heroOwner.set(s.number, s.owner_id);
+    S.hstats.set(s.number, { xp: +s.xp, strikes: s.strikes, wins: s.wins, vault: near(s.vault), earned: near(s.lifetime_earned),
+      gear: s.gear.map(name => GEAR.findIndex(x => x.name === name)).filter(i => i >= 0), acct: !!s.account_id });
+  };
   const g = globalThis, CONFIRM = "Confirm in your wallet…";
   let busy = false, gearLoaded = false;
 
@@ -138,11 +144,8 @@ function installNftLayer({ view, wallet }) {
       for (const [id, eq] of await pmap(fighters, 2, id => view("equipped_of", { account_id: id }).then(e => [id, e]))) {
         if (eq) { S.equipped.set(id, eq.number); S.heroOwner.set(eq.number, id); detail.add(eq.number); } else S.equipped.delete(id);
       }
-      for (const s of await pmap([...detail].slice(0, 40), 3, n => view("hero_stats", { token_id: tok(n) }))) {
-        if (s.owner_id) S.heroOwner.set(s.number, s.owner_id);
-        S.hstats.set(s.number, { xp: +s.xp, strikes: s.strikes, wins: s.wins, vault: near(s.vault), earned: near(s.lifetime_earned),
-          gear: s.gear.map(name => GEAR.findIndex(x => x.name === name)).filter(i => i >= 0), acct: !!s.account_id });
-      }
+      S.art.slice(0, 24).forEach(a => detail.add(a.n)); // newest heroes: badges for vault, gear and own account on their cards
+      (await pmap([...detail].slice(0, 48), 3, n => view("hero_stats", { token_id: tok(n) }))).forEach(setStats);
       if (typeof syncArena === "function") syncArena();
       renderAll();
     } catch (e) { console.warn("hero sync", e); }
@@ -202,6 +205,14 @@ function installNftLayer({ view, wallet }) {
     const [col, id] = (v || "").split(":");
     if (!cols.includes(col) || !id) return v && toast("Use an approved collection and a token id, like collection.testnet:12.");
     (await wallet()).lockNft(col, id).then(() => { toast(`${col} #${id} locked.`); refresh(); }, fail);
+  };
+  const baseOpenHero = g.openHero;
+  g.openHero = (n, fresh) => {
+    baseOpenHero(n, fresh);
+    if (S.heroOwner.has(n)) view("hero_stats", { token_id: tok(n) }).then(s => {
+      setStats(s);
+      if ($("dlg").open && $("dlgH").textContent.endsWith(Heroes.traits(n).name)) baseOpenHero(n, fresh);
+    }).catch(() => {});
   };
   return { refresh };
 }
@@ -274,7 +285,7 @@ async function start() {
     try {
       cv = await view("get_cycle");
       const { now, cycle } = toCycle(cv), prev = S.cycle;
-      S.now = now; S.cycle = cycle;
+      S.now = now; S.cycle = cycle; cycle.status = cv.status; // "open" | "cooldown" | "awaiting_finalize"
       if (synced && prev.id === cycle.id && cycle.count > prev.count) onGesture(cycle.last, cycle.endsAt - prev.endsAt);
       if (synced && prev.id !== cycle.id) roundEnded(); // settled on chain: K.O. card, awards, new heroes
       synced = true;

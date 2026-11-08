@@ -53,7 +53,7 @@ function renderMute(){$("mute").innerHTML=SFX.on?'<svg width="22" height="22" vi
 /* cards */
 function heroCard(n,extra){
   const t=Heroes.traits(n),r=RCLS[t.rarityIdx],o=S.heroOwner.get(n),eq=o&&S.equipped.get(o)===n,l=S.listings&&S.listings.get(n);
-  return `<button class="hcard ${o?"":"unminted"}" data-n="${n}">${art(n)}<b>#${n} ${t.name}</b><small>${o?`<span class="tag lv">Lv ${heroLv(n)}</span> `:""}${gearOf(n).length?`<span class="tag gr">${gearOf(n).length} gear</span> `:""}<span class="tag ${r}">${t.rarity}</span> ${o?short(o):"Not minted"}${eq&&o===ME?' <span class="tag eq">Equipped</span>':""}${l&&extra!=="nolist"?` <span style="color:var(--fire-lo)">${fmt(l.price)} NEAR</span>`:""}</small></button>`;
+  return `<button class="hcard ${o?"":"unminted"}" data-n="${n}">${art(n)}<b>#${n} ${t.name}</b><small>${o?`<span class="tag lv">Lv ${heroLv(n)}</span> `:""}${gearOf(n).length?`<span class="tag gr">${gearOf(n).length} gear</span> `:""}${(S.hstats.get(n)||{}).vault>0?`<span class="tag vt">Vault ${fmt(S.hstats.get(n).vault)}</span> `:""}${(S.hstats.get(n)||{}).acct?`<span class="tag acct">Own account</span> `:""}<span class="tag ${r}">${t.rarity}</span> ${o?short(o):"Not minted"}${eq&&o===ME?' <span class="tag eq">Equipped</span>':""}${l&&extra!=="nolist"?` <span style="color:var(--fire-lo)">${fmt(l.price)} NEAR</span>`:""}</small></button>`;
 }
 function rtile(i,n){return `<div class="rtile">${art(n)}<b>${Heroes.RARITIES[i]}</b> <span class="muted">${SUPPLY_BY[i].toLocaleString()}</span><p>${Heroes.POWERS[i]}</p></div>`;}
 function renderPowers(){$("powers").innerHTML=Heroes.RARITIES.map((r,i)=>rtile(i,Heroes.numberFor(i,31))).join("");}
@@ -70,7 +70,8 @@ function renderHome(){
 }
 function renderLive(){
   const c=S.cycle,cool=S.now<c.opensAt,rem=cool?c.opensAt-S.now:Math.max(0,c.endsAt-S.now);
-  $("liveCard").innerHTML=`<div class="panel-b"><div><small><span class="dot"></span>Round ${c.id} ${cool?"starts in":"is live"}</small><div class="t">${Math.floor(rem/60)}:${String(Math.floor(rem%60)).padStart(2,"0")}</div></div>
+  const over=c.status==="awaiting_finalize";
+  $("liveCard").innerHTML=`<div class="panel-b"><div><small><span class="dot"></span>Round ${c.id} ${over?"is over":cool?"starts in":"is live"}</small><div class="t">${over?"Next round":`${Math.floor(rem/60)}:${String(Math.floor(rem%60)).padStart(2,"0")}`}</div></div>
     <div><small>Pot</small><div class="t" style="font-size:1.45rem">${fmt(c.pool)} NEAR</div><small>${c.last?`Leading: ${short(c.last)}`:"No strikes yet"}</small></div><a class="btn" href="/play">Join</a></div>`;
 }
 
@@ -121,12 +122,12 @@ function openHero(n,fresh){
    <div class="hnums"><div><small>Strikes</small><b>${x.strikes}</b></div><div><small>Wins</small><b>${x.wins}</b></div><div><small>Vault</small><b>${fmt(x.vault)} NEAR</b></div><div><small>Earned ever</small><b>${fmt(x.earned)} NEAR</b></div></div>
    <p class="hnote">Earns 10% of its owner's winnings and 40% of its resale royalty.</p>
    ${o===ME&&x.vault>0?`<button class="btn btn-gold sm" id="dlgVault">Claim ${fmt(x.vault)} NEAR from vault</button>`:""}
-   <div class="acctrow">${x.acct?`<span class="tag acct">Own NEAR account</span> <code>${acctOf(n)}</code>`
-     :o===ME?`<button class="btn ice sm" id="dlgAcct">Give it its own NEAR account (${fmt(HERO_ACCT_COST)} NEAR)</button><small><code>${acctOf(n)}</code></small>`:`<small>No account of its own yet.</small>`}</div></div>
+   <div class="acctrow">${x.acct?`<span class="tag acct">Own NEAR account</span> ${xlink(exAcct(acctOf(n)),`<code>${acctOf(n)}</code>`)}`
+     :o===ME?`<button class="btn ice sm" id="dlgAcct">Give it its own NEAR account (${fmt(S.heroAcctCost?Number(BigInt(S.heroAcctCost)/10n**18n)/1e6:HERO_ACCT_COST)} NEAR)</button><small><code>${acctOf(n)}</code></small>`:`<small>No account of its own yet.</small>`}</div></div>
    <div class="inv"><b>Inventory</b> <span class="muted">${(x.gear||[]).length}/${GEAR_SLOTS} slots.</span>
    <div class="slots">${[0,1,2].map(i=>{const g=(x.gear||[])[i];return g===undefined?`<div class="slot empty">Empty</div>`:`<div class="slot">${GEAR_ICON[g]}<b>${GEAR[g].name}</b><small>${GEAR[g].fx}</small>${o===ME&&mineOther(n).length?`<select class="ctl mv" data-g="${g}" aria-label="Move ${GEAR[g].name} to another hero"><option value="">Move to...</option>${mineOther(n).map(m=>`<option value="${m}">#${m}</option>`).join("")}</select>`:""}</div>`;}).join("")}</div>
    ${o===ME&&(x.gear||[]).length<GEAR_SLOTS?`<div class="shop">${GEAR.map((it,g)=>(x.gear||[]).includes(g)?"":`<button class="btn sm ice" data-buy="${g}">${it.name}: ${fmt(it.price)} NEAR</button>`).join("")}</div>`:""}</div>`;}
-  $("dlgT").innerHTML=md.attributes.filter(x=>x.trait_type!=="Rarity").map(x=>`<dt>${x.trait_type}</dt><dd>${x.value}</dd>`).join("")+`<dt>Owner</dt><dd>${o||"Not minted yet"}</dd>${lst?`<dt>For sale</dt><dd>${fmt(lst.price)} NEAR</dd>`:""}<dt>Token</dt><dd>hero-${n}, NEP-171 with live metadata, 5% royalty</dd>`;
+  $("dlgT").innerHTML=md.attributes.filter(x=>x.trait_type!=="Rarity").map(x=>`<dt>${x.trait_type}</dt><dd>${x.value}</dd>`).join("")+`<dt>Owner</dt><dd>${o?xlink(exAcct(o),o):"Not minted yet"}</dd>${lst?`<dt>For sale</dt><dd>${fmt(lst.price)} NEAR</dd>`:""}<dt>Token</dt><dd>${o?xlink(exNft(n),`hero-${n}`):`hero-${n}`}, NEP-171 with live metadata, 5% royalty</dd>`;
   let h="";
   if(o===ME){h+=eq?`<span class="tag eq" style="font-size:.95rem;padding:4px 12px">Equipped</span>`:`<button class="btn sm" id="equipBtn">Equip</button>`;
     h+=lst?`<button class="btn ice sm" id="dlgDelist">Delist (${fmt(lst.price)} NEAR)</button>`:`<button class="btn ice sm" id="dlgSell">Sell</button>`;}

@@ -19,6 +19,23 @@ Built for the NEAR Hackathon, track **NFTs That Do Something**. It runs on testn
 6. **Win heroes and NEAR.** Claim your winnings, equip a hero for its power, give it gear, open its own NEAR account, or sell it on the market.
 7. Optional: **claim a NEAR name** like `alice.testnet` straight from the game.
 
+## For judges: see the NFT track in 5 minutes
+
+You need a testnet wallet with about 3 test NEAR (step 1 of *How to play*; the **Free test NEAR** button in the game links the faucet). Each step below says what to do and what you should see. The links go to the NEAR testnet explorer, so every claim can be checked on chain.
+
+| Do | See |
+|---|---|
+| Open [boundora.xyz](https://boundora.xyz), click **Connect wallet**, then **Mint your pass** (0.01 NEAR) | Your belt card shows a **Soulbound** pass with your join round, rounds, strikes, wins and best finish. It's the NEP-171 token `pass-<your account>`; the contract refuses to transfer, list or sell it. |
+| Go to **Play** and press **Strike!** | The clock gains 60 s, the pot grows and you become the fighter holding the final strike. If the last round's clock ran out, the button reads **Start round N** and settles it first, without charging NEAR. |
+| Go to **Heroes**, click **Mint a hero** (0.1 NEAR) | A 3D hero opens with its rarity, power, level and XP. The **Token** row links to the NFT on the explorer; the **Owner** row links to your account. |
+| Click **Equip**, then strike again | The hero's XP rises (10 per strike): a dynamic NFT whose title and metadata change on chain (`nft_token("hero-N")`). |
+| In the hero window, buy **Frost Cloak** (0.5 NEAR) | It fills one of the hero's 3 gear slots, and the hero card shows a **gear** badge. Gear belongs to the hero, not to you, so it moves with every sale. |
+| Click **Give it its own NEAR account** | The contract creates `hero-N.boundora.testnet` and deploys the vault contract there. The hero card shows an **Own account** badge, and the account name links to it on the explorer. |
+| List the hero on the **Market**, and buy it from a second wallet | The sale moves the hero and its gear to the buyer. 40% of the 5% royalty lands in the hero's own account (see its balance on the explorer), and the card shows a **Vault** badge. |
+| As the new owner, open the hero and click **Claim … from vault** | The hero's money is paid to its current owner only; the previous owner can't claim it. |
+
+To run the same checks from a terminal instead, `node scripts/e2e-testnet.mjs` walks all of them with two fresh faucet accounts and prints PASS/FAIL (see *Verify it on chain*).
+
 ## How Boundora fits "NFTs That Do Something"
 
 | Track ask | Boundora |
@@ -38,7 +55,7 @@ Everything in the game is a real transaction on the contract [`boundora.testnet`
 - **Supply:** 20,000 heroes. 8,400 Common, 5,600 Rare, 3,400 Epic, 1,800 Legendary and 800 Mythic. These counts are exact and enforced by the contract.
 - **Fixed in advance:** hero N's rarity comes from `p = (7919·(N−1) + 3571) mod 20000`, and its traits come from a seeded generator, so the whole collection can be browsed before minting. Traits cover build, coat, fur trim, headgear, facial hair, hair, mood, weapon, gear material, companion and scene, and all 20,000 combinations are unique.
 - **How you get one:**
-  - **Public mint:** `mint_hero()` costs 2 NEAR (max 5 per wallet) and draws a random hero from the remaining supply. The proceeds go to the treasury.
+  - **Public mint:** `mint_hero()` costs 0.1 NEAR on testnet (max 5 per wallet) and draws a random hero from the remaining supply. The proceeds go to the treasury.
   - **Winning rounds:** final strike earns a Legendary (5% chance of Mythic), iron stance an Epic, each chi master a Rare, and the raffle 2 Commons. If a rarity sells out, the contract gives the closest rarity still available.
 - **What a hero does:** call `equip_hero(token_id)`. The power applies to your strikes for as long as you own the hero, and stops if you sell it.
   - Common: +1s per strike

@@ -945,15 +945,22 @@ function renderPass(){
   if($("mintMore"))$("mintMore").onclick=mintPass;
   if($("lock"))$("lock").onclick=()=>lockNft();
 }
+// NEAR testnet explorer links: make the on-chain NFTs and accounts checkable
+const EXPLORER="https://testnet.nearblocks.io";
+const exAcct=a=>`${EXPLORER}/address/${a}`,exNft=n=>`${EXPLORER}/nft-token/${CONTRACT_ID}/hero-${n}`;
+const xlink=(href,text)=>`<a class="xl" href="${href}" target="_blank" rel="noopener">${text} &#8599;</a>`;
+const FAUCET="https://near-faucet.io";
+function needNear(){if(!S.wallet)return 0;const need=multOf(ME)<1?passNear():costFor(ME)*stake;return (S.balances.get(ME)||0)<need+0.01?need:0;}
 function renderStrike(){
-  const b=$("strikeBox"),c=S.cycle,cool=S.now<c.opensAt;
+  const b=$("strikeBox"),c=S.cycle,cool=S.now<c.opensAt,over=c.status==="awaiting_finalize";
   let label,sub,cls="strike";
   if(!S.wallet){label="Enter the dojo";sub=LIVE?"Connect your NEAR wallet":"Connect a demo wallet";cls+=" gold";}
   else if(multOf(ME)<1){label="Mint your pass";sub=`${passLabel()}, required to play`;cls+=" gold";}
+  else if(over){label="Start round "+(c.id+1);sub=`Settles round ${c.id}, no NEAR needed`;}
   else if(cool){label="Between rounds";sub=`Round ${c.id} opens soon`;}
   else{label="Strike!";sub=`${fmt(costFor(ME)*stake)} NEAR at ${stake}× chi`;}
   b.innerHTML=`<button class="${cls}" id="strikeBtn" ${cool&&S.wallet&&multOf(ME)>0?"disabled":""}>${label}<small>${sub}</small></button>
-    <p class="hint ${hint.err?"err":""}">${hint.msg||(S.wallet&&multOf(ME)>0?`Adds ${CFG.ext+fxOf(ME)[0]}s.<span class="kbdhint"> Press <span class="kbd">Space</span></span>`:(LIVE?"Connect a wallet and mint your pass to fight.":"Seven sparring partners are already fighting."))}</p>`;
+    ${needNear()?`<p class="hint err">You need about ${fmt(needNear())} test NEAR to play. ${xlink(FAUCET,"Get free test NEAR")}</p>`:""}<p class="hint ${hint.err?"err":""}">${hint.msg||(S.wallet&&multOf(ME)>0?`Adds ${CFG.ext+fxOf(ME)[0]}s.<span class="kbdhint"> Press <span class="kbd">Space</span></span>`:(LIVE?"Connect a wallet and mint your pass to fight.":"Seven sparring partners are already fighting."))}</p>`;
   $("strikeBtn").onclick=doStrike;
 }
 function renderMe(){
@@ -974,11 +981,12 @@ function fighterHTML(id,role,pct,jade){
 let hudKey="";
 function renderHud(){
   const c=S.cycle,cool=S.now<c.opensAt;
-  $("roundLbl").textContent=cool?`Round ${c.id} next`:`Round ${c.id}`;
+  const over=c.status==="awaiting_finalize";
+  $("roundLbl").textContent=over?`Round ${c.id} is over`:cool?`Round ${c.id} next`:`Round ${c.id}`;
   const rem=cool?c.opensAt-S.now:Math.max(0,c.endsAt-S.now);
   const m=Math.floor(rem/60),s=Math.floor(rem%60);
-  $("digits").textContent=!cool&&rem<10?`${s}.${Math.floor(rem*10)%10}`:`${m}:${String(s).padStart(2,"0")}`;
-  $("digits").classList.toggle("hot",!cool&&rem<10);
+  $("digits").textContent=over?"Strike!":!cool&&rem<10?`${s}.${Math.floor(rem*10)%10}`:`${m}:${String(s).padStart(2,"0")}`;
+  $("digits").classList.toggle("hot",!over&&!cool&&rem<10);
   $("timebar").style.width=(cool?0:Math.min(100,rem/CFG.maxRemain*100))+"%";
   $("pot").textContent=fmt(c.pool);
   // left: final-strike holder (bar = hold time); right: top challenger by stake
@@ -1033,7 +1041,7 @@ function collectionList(){
 }
 function renderVault(force){
   const list=collectionList(),per=24,pages=Math.max(1,Math.ceil(list.length/per));page=Math.min(page,pages-1);
-  const slice=list.slice(page*per,page*per+per),key=[filter,rfilter,page,slice.join(),S.art.length,[...S.equipped.values()].join()].join("|");
+  const slice=list.slice(page*per,page*per+per),key=[filter,rfilter,page,slice.join(),S.art.length,[...S.equipped.values()].join(),S.statsVer].join("|");
   if(key===vaultKey&&!force)return;vaultKey=key;
   $("vault").innerHTML=slice.length?slice.map(n=>heroCard(n)).join(""):`<p class="empty">${filter==="mine"?"No heroes yet. Mint one above, or win one in the arena.":"Nothing matches that filter yet."}</p>`;
   bindCards($("vault"));
