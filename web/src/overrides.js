@@ -109,7 +109,7 @@ const mineOther=n=>[...S.heroOwner].filter(([m,o])=>o===ME&&m!==n).map(([m])=>m)
 /* hero profile */
 function openHero(n,fresh){
   const t=Heroes.traits(n),r=RCLS[t.rarityIdx],o=S.heroOwner.get(n),eq=o&&equippedN(o)===n,md=Heroes.metadata(n),lst=S.listings.get(n);
-  $("dlgArt").innerHTML=sceneBG(n);
+  $("dlgArt").innerHTML=sceneBG(n);$("dlgArt").firstElementChild?.setAttribute("preserveAspectRatio","xMidYMid slice"); // fill the 3D view
   if(H3){try{if(!viewer)viewer=new Hero3D.Viewer($("dlgCanvas"),n);else{viewer.set(n);viewer.start();}}catch(e){$("dlgArt").innerHTML=Heroes.heroSVG(n);}}
   else $("dlgArt").innerHTML=Heroes.heroSVG(n);
   $("dlgH").textContent=`${fresh?"New hero: ":""}${t.name}`;
