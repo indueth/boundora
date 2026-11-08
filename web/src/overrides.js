@@ -132,7 +132,7 @@ function openHero(n,fresh){
     h+=lst?`<button class="btn ice sm" id="dlgDelist">Delist (${fmt(lst.price)} NEAR)</button>`:`<button class="btn ice sm" id="dlgSell">Sell</button>`;}
   else if(lst)h+=`<button class="btn sm" id="dlgBuy">Buy for ${fmt(lst.price)} NEAR</button>`;
   $("dlgAct").innerHTML=h;
-  if($("equipBtn"))$("equipBtn").onclick=()=>{S.equipped.set(ME,n);SFX.play("coin");toast(`Equipped #${n}. ${t.power}.`);log(`You equipped hero #${n}`,"me");$("dlg").close();syncArena();renderAll();};
+  if($("equipBtn"))$("equipBtn").onclick=()=>{const err=equipHero(n);if(err){$("dlg").close();return toast(err);}SFX.play("coin");toast(`Equipped #${n}. ${t.power}.`);log(`You equipped hero #${n}`,"me");$("dlg").close();syncArena();renderAll();};
   if($("dlgSell"))$("dlgSell").onclick=()=>{sellN=n;$("dlg").close();location.hash="#market";};
   if($("dlgDelist"))$("dlgDelist").onclick=()=>{delistHero(ME,n);toast(`Hero #${n} delisted.`);$("dlg").close();renderAll();};
   if($("dlgAcct"))$("dlgAcct").onclick=()=>{const err=openAccount(ME,n);if(err)return toast(err);SFX.play("coin");toast(`Hero #${n} now has its own NEAR account.`);openHero(n);renderAll();};

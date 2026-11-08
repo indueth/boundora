@@ -17,3 +17,10 @@ import { validName } from "./live.js";
 for (const ok of ["alice", "a1", "bob-the_3", "x".repeat(56)]) assert.ok(validName(ok, ".testnet"), ok);
 for (const bad of ["a", "Alice", "-bob", "bob-", "bo--b", "b_-b", "al.ice", "al ice", "x".repeat(57)]) assert.ok(!validName(bad, ".testnet"), bad);
 console.log("validName ok");
+
+import { yocto } from "./live.js";
+assert.equal(yocto("2"), "2000000000000000000000000");
+assert.equal(yocto("0.01"), "10000000000000000000000");
+assert.equal(yocto(1.5), "1500000000000000000000000");
+assert.equal(yocto("0.123456789012345678901234567"), "123456789012345678901234"); // extra digits dropped
+console.log("yocto ok");

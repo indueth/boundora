@@ -1,0 +1,4 @@
+# near-sdk only reports panic messages to the chain when built with `--cfg near` (cargo-near sets it;
+# plain `cargo build` needs this, otherwise every require!() becomes a bare "WasmTrap(Unreachable)").
+[target.wasm32-unknown-unknown]
+rustflags = ["--cfg", "near"]

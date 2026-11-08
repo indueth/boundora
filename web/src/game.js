@@ -912,6 +912,9 @@ function renderWallet(){
   w.innerHTML=`<div class="acct"><b>${ME}</b><small>${fmt(S.balances.get(ME))} NEAR</small></div><button class="btn btn-line" id="disc">Leave</button>`;
   $("disc").onclick=()=>{S.wallet=null;renderAll();};
 }
+// Actions the live layer (near/live.js) replaces with contract calls; these are the ?demo versions.
+function lockNft(){S.locks.set(ME,[{collection:"demo-collection.testnet",token:"2187"}]);stake=multOf(ME);toast("demo-collection.testnet #2187 locked. It counts as a pass.");log("You locked demo-collection.testnet #2187","me");renderAll();}
+function equipHero(n){S.equipped.set(ME,n);return null;}
 function connect(){if(LIVE){S.wantConnect=true;return toast("Loading wallets, one moment…");}S.wallet={id:ME};if(!S.balances.has(ME))S.balances.set(ME,25);SFX.init();toast("Demo wallet connected: 25 test NEAR.");renderAll();}
 function mintPass(){const bal=S.balances.get(ME),price=passNear();if(bal<price){hint={msg:`You need ${fmt(price)} NEAR for the pass.`,err:true};return renderAll();}
   const n=(S.passes.get(ME)||0);if(n>=CFG.maxPasses)return;S.balances.set(ME,bal-price);S.passes.set(ME,n+1);S.treasury+=price;S.pstats.delete(ME);ps(ME);
@@ -940,7 +943,7 @@ function renderPass(){
     <div class="links">${(S.passes.get(ME)||0)<CFG.maxPasses?`<button class="btn btn-line" id="mintMore">Mint your pass: ${passLabel()}</button>`:""}${locked||!hasPass(ME)?"":`<button class="btn btn-line" id="lock">Lock an NFT for +1 chi</button>`}</div>`;
   b.querySelectorAll(".chi button").forEach(x=>x.onclick=()=>{stake=+x.dataset.i;renderAll();});
   if($("mintMore"))$("mintMore").onclick=mintPass;
-  if($("lock"))$("lock").onclick=()=>{S.locks.set(ME,[{collection:"demo-collection.testnet",token:"2187"}]);stake=multOf(ME);toast("demo-collection.testnet #2187 locked. It counts as a pass.");log("You locked demo-collection.testnet #2187","me");renderAll();};
+  if($("lock"))$("lock").onclick=()=>lockNft();
 }
 function renderStrike(){
   const b=$("strikeBox"),c=S.cycle,cool=S.now<c.opensAt;

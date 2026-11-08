@@ -9,15 +9,16 @@ Boundora is a competitive, cycle-based game on NEAR, with a 20,000-piece hero NF
 | Path | What it is |
 |---|---|
 | `vault/` | The small contract deployed inside each hero's own NEAR account (`hero-N.<boundora>`). Only Boundora can move NEAR out of it, and only for the hero's current owner. 3 unit tests. `res/vault.wasm` is a placeholder; the deploy workflow builds the real one and embeds it in the main contract. |
-| `contract/` | Rust smart contract (near-sdk 5.30): cycles, gestures, ranking, payouts, soulbound passes, NFT locking, the 20,000 Boundora Heroes (NEP-171, NEP-199 royalties, approvals) with equippable powers, levels, gear inventories, their own NEAR vaults and optional sub-accounts; the pass is a soulbound NEP-171 token. 62 unit tests. |
-| `web/index.html` | The playable dojo game: a fighting-game HUD, Round/Fight/K.O. calls, combo counter, hit effects and sound, belts and a chi gauge, heroes as the fighters, hero minting and equipping, and a browser for all 20,000 heroes. It runs a local simulation of the contract with arcade-speed clocks. |
+| `contract/` | Rust smart contract (near-sdk 5.30): cycles, gestures, ranking, payouts, soulbound passes, NFT locking, the 20,000 Boundora Heroes (NEP-171, NEP-199 royalties, approvals) with equippable powers, levels, gear inventories, their own NEAR vaults and optional sub-accounts; the pass is a soulbound NEP-171 token. 64 unit tests. |
+| `web/index.html` | The playable dojo game: a fighting-game HUD, Round/Fight/K.O. calls, combo counter, hit effects and sound, belts and a chi gauge, heroes as the fighters, hero minting and equipping, and a browser for all 20,000 heroes. It plays on NEAR testnet against `boundora.testnet`; `?demo` runs a local simulation with practice bots and arcade-speed clocks. |
 | `web/hero3d.js` | The 3D hero renderer (three.js, cartoon shading with outlines). It builds each hero from the same traits, renders card images, and drives the spinning profile view and the arena fighters. |
 | `web/src/`, `web/build.py` | Page sources: the stylesheet, the page markup and the UI layer. `python3 web/build.py` rebuilds `web/index.html`. |
 | `.github/workflows/deploy-testnet.yml` | Builds the contract and deploys it to NEAR testnet from GitHub Actions. |
 | `web/heroes.js` | The Boundora Heroes generator. Hero number N (1 to 20,000) always draws the same hero, with rarity matching the contract's schedule exactly. Works in the browser and in Node. |
 | `scripts/export-collection.js` | Writes `collection/metadata.json` (all 20,000), a trait report, and optional SVGs. |
 | `collection/` | Full metadata, trait counts, 24 sample SVGs and `boundora-heroes-preview.png` for your X post. |
-| `web/near/boundora-near.js` | Wallet Selector + RPC adapter that swaps the simulation for the deployed contract. |
+| `web/near/` | The testnet layer: `live.js` (every page action as a contract call), `boundora-near.js` (wallet adapter, bundled by `web/build-wallet.mjs`), `config.js` (contract, network, RPCs). |
+| `scripts/e2e-testnet.mjs` | End-to-end check of the deployed contract: walks every NFT feature with two fresh faucet accounts and prints PASS/FAIL. |
 
 ## Boundora Heroes (20,000 NFTs)
 
@@ -82,7 +83,7 @@ Each hero token is `hero-N` and stores `{"number","rarity","won_for","cycle","re
 
 ```bash
 cd contract
-cargo test                         # 62 unit tests
+cargo test                         # 64 unit tests
 (cd ../vault && cargo test)        # 3 unit tests for the hero account contract
 rustup toolchain install stable    # near-sdk 5.30 needs rustc >= 1.95
 cargo near build                   # install with: cargo install cargo-near
@@ -95,17 +96,26 @@ Fund the contract account with a few NEAR so it can cover storage before the fir
 
 ## Front end
 
-`web/index.html` is self-contained, with no build step. It runs the local simulation by default.
+**Live on NEAR testnet:** the contract runs at [`boundora.testnet`](https://testnet.nearblocks.io/address/boundora.testnet). Serve `web/` (`bash scripts/local.sh serve`, or `python -m http.server 8000 -d web`) and open http://localhost:8000/. The page plays on testnet by default; `?demo` runs an offline practice simulation with bots instead.
 
-**Live mode:** serve `web/` over HTTP (for example `python -m http.server -d web`) and open `index.html` (it plays on testnet by default; `?demo` runs the offline practice simulation). `web/near/live.js` then plays against the deployed contract (`CONTRACT_ID` and `NETWORK` in `web/near/config.js`): wallet sign-in (MyNearWallet, Meteor), the clock, pot and fighters from `get_cycle` every second, pass minting at the `pass_quote` price, strikes, finalize and claim. Chain reads use plain `fetch`, so the game goes live before the wallet libraries finish loading.
+Everything a player does in the page is a signed testnet transaction, sent through `web/near/live.js`:
 
-**NEAR names:** a connected player can claim a top-level name (`alice.testnet` on testnet, `alice.near` with `NETWORK = "mainnet"`) through NEAR's own registrar (`create_account` on `testnet` / `near`). The page checks the name is free, makes a new key pair in the browser and shows it (copy or download) before the player signs; 0.1 NEAR from their wallet goes into the new account. The player then imports the name into MyNearWallet or Meteor with that key. If the wallet redirects mid-claim, the result is shown when the page comes back. The market, auctions, gear, hero minting, NFT locking and round history are still simulated in live mode. `node web/near/live.test.mjs` checks the chain-to-page mapping.
+- **Wallet:** MyNearWallet or Meteor (wallet libraries bundled locally in `web/near/boundora-near.bundle.js`; rebuild with `node web/build-wallet.mjs`).
+- **Game:** soulbound pass (0.01 NEAR), strikes, finalize, claim. The clock, pot and fighters come from `get_cycle`; the K.O. card, award heroes and round history from `get_history`.
+- **Heroes:** mint (`mint_hero`), equip, gear shop and moving gear, claiming a hero's vault, giving a hero its own account (`open_hero_account`). Levels, XP, gear, vaults and accounts are read back from `hero_stats`, and the Heroes page lists every minted hero with its owner from `nft_tokens`.
+- **Market:** list, delist and buy; bids held in escrow, raising, withdrawing and accepting; auctions (bidding on an ended auction settles it); sales history from `get_sales`.
+- **Locking an NFT** from an approved collection (`nft_transfer_call`) for +1 chi.
+- **NEAR names:** a connected player can claim a top-level name (`alice.testnet`, or `alice.near` with `NETWORK = "mainnet"` in `web/near/config.js`) through NEAR's registrar (`create_account` on `testnet`/`near`). The page checks the name is free, makes a key pair in the browser and shows it to save before the player signs; 0.1 NEAR goes into the new account.
+
+Chain reads use plain `fetch` and rotate between public RPCs (they rate-limit browsers). `node web/near/live.test.mjs` checks the chain-to-page mapping.
+
+**Verify it yourself:** `node scripts/e2e-testnet.mjs` creates two fresh faucet accounts and walks the whole NFT track on `boundora.testnet` with the same calls the page makes, printing PASS/FAIL for each: soulbound pass (and that it can't be transferred), a strike, hero mint, equip, gear inventory, dynamic metadata, the hero's own sub-account, listing, an escrowed bid, a sale that moves the hero and its gear, the resale royalty landing in the hero's own account, bid refunds, and that only the new owner can claim the hero's vault. Last run: 17 passed, 0 failed.
 
 ## How Boundora fits "NFTs That Do Something"
 
 | Track ask | Boundora |
 |---|---|
-| NFTs that own money | Each hero has a vault, and can have its own NEAR sub-account |
+| NFTs that own money | Each hero has a vault, and can have its own NEAR sub-account (`hero-N.boundora.testnet`, e.g. [hero-2371](https://testnet.nearblocks.io/address/hero-2371.boundora.testnet)) |
 | Earn royalties | 40% of every resale royalty goes into the hero's vault |
 | Hold inventory | 3 gear slots per hero; gear moves with the hero |
 | Carry credentials, memberships, access rights | Soulbound pass NFT, required to play, with a live membership record |
@@ -114,11 +124,12 @@ Fund the contract account with a few NEAR so it can cover storage before the fir
 | Sub-accounts | `hero-N.<boundora>` hero accounts running the `vault/` contract |
 
 ## Hackathon notes and known limits
-- Hero accounts need the real `vault/` wasm embedded. The deploy workflow builds it. A plain local `cargo near build` without that step leaves `hero_accounts_enabled()` false. The embedded code makes the main contract roughly 100 KB larger, so keep about 2 NEAR extra on the contract account for storage.
+- Hero accounts need the real `vault/` wasm embedded. `scripts/local.sh build` and the deploy workflow build it first; building only `contract/` leaves `hero_accounts_enabled()` false.
+- Plain `cargo build` needs `--cfg near` (set in `contract/.cargo/config.toml` and `vault/.cargo/config.toml`), or every contract error reaches the chain as a bare `WasmTrap(Unreachable)` instead of its message. `cargo near build` sets it itself. The embedded code makes the main contract roughly 100 KB larger, so keep about 2 NEAR extra on the contract account for storage.
 
 - Randomness for the raffle and art seeds uses `env::random_seed()`. That's fine for a demo, but block producers can influence it.
 - Each cycle stores its players in one vector, capped at 150, so settlement fits in gas. For more players, move to paginated settlement.
-- In the browser demo, the hash function stands in for sha256. Art seeds from the real contract are true sha256 hashes.
+- In the `?demo` simulation, the hash function stands in for sha256. Art seeds from the real contract are true sha256 hashes.
 
 ## Run everything from this machine
 

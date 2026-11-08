@@ -1355,6 +1355,9 @@ function renderWallet(){
   w.innerHTML=`<div class="acct"><b>${ME}</b><small>${fmt(S.balances.get(ME))} NEAR</small></div><button class="btn ice sm" id="disc">Leave</button>`;
   $("disc").onclick=()=>{S.wallet=null;renderAll();};
 }
+// Actions the live layer (near/live.js) replaces with contract calls; these are the ?demo versions.
+function lockNft(){S.locks.set(ME,[{collection:"demo-collection.testnet",token:"2187"}]);stake=multOf(ME);toast("demo-collection.testnet #2187 locked. It counts as a pass.");log("You locked demo-collection.testnet #2187","me");renderAll();}
+function equipHero(n){S.equipped.set(ME,n);return null;}
 function connect(){if(LIVE){S.wantConnect=true;return toast("Loading wallets, one moment…");}S.wallet={id:ME};if(!S.balances.has(ME))S.balances.set(ME,25);SFX.init();toast("Demo wallet connected: 25 test NEAR.");renderAll();}
 function mintPass(){const bal=S.balances.get(ME),price=passNear();if(bal<price){hint={msg:`You need ${fmt(price)} NEAR for the pass.`,err:true};return renderAll();}
   const n=(S.passes.get(ME)||0);if(n>=CFG.maxPasses)return;S.balances.set(ME,bal-price);S.passes.set(ME,n+1);S.treasury+=price;S.pstats.delete(ME);ps(ME);
@@ -1383,7 +1386,7 @@ function renderPass(){
     <div class="links">${(S.passes.get(ME)||0)<CFG.maxPasses?`<button class="btn ice sm" id="mintMore">Mint your pass: ${passLabel()}</button>`:""}${locked||!hasPass(ME)?"":`<button class="btn ice sm" id="lock">Lock an NFT for +1 chi</button>`}</div>`;
   b.querySelectorAll(".chi button").forEach(x=>x.onclick=()=>{stake=+x.dataset.i;renderAll();});
   if($("mintMore"))$("mintMore").onclick=mintPass;
-  if($("lock"))$("lock").onclick=()=>{S.locks.set(ME,[{collection:"demo-collection.testnet",token:"2187"}]);stake=multOf(ME);toast("demo-collection.testnet #2187 locked. It counts as a pass.");log("You locked demo-collection.testnet #2187","me");renderAll();};
+  if($("lock"))$("lock").onclick=()=>lockNft();
 }
 function renderStrike(){
   const b=$("strikeBox"),c=S.cycle,cool=S.now<c.opensAt;
@@ -1741,7 +1744,7 @@ function openHero(n,fresh){
     h+=lst?`<button class="btn ice sm" id="dlgDelist">Delist (${fmt(lst.price)} NEAR)</button>`:`<button class="btn ice sm" id="dlgSell">Sell</button>`;}
   else if(lst)h+=`<button class="btn sm" id="dlgBuy">Buy for ${fmt(lst.price)} NEAR</button>`;
   $("dlgAct").innerHTML=h;
-  if($("equipBtn"))$("equipBtn").onclick=()=>{S.equipped.set(ME,n);SFX.play("coin");toast(`Equipped #${n}. ${t.power}.`);log(`You equipped hero #${n}`,"me");$("dlg").close();syncArena();renderAll();};
+  if($("equipBtn"))$("equipBtn").onclick=()=>{const err=equipHero(n);if(err){$("dlg").close();return toast(err);}SFX.play("coin");toast(`Equipped #${n}. ${t.power}.`);log(`You equipped hero #${n}`,"me");$("dlg").close();syncArena();renderAll();};
   if($("dlgSell"))$("dlgSell").onclick=()=>{sellN=n;$("dlg").close();location.hash="#market";};
   if($("dlgDelist"))$("dlgDelist").onclick=()=>{delistHero(ME,n);toast(`Hero #${n} delisted.`);$("dlg").close();renderAll();};
   if($("dlgAcct"))$("dlgAcct").onclick=()=>{const err=openAccount(ME,n);if(err)return toast(err);SFX.play("coin");toast(`Hero #${n} now has its own NEAR account.`);openHero(n);renderAll();};

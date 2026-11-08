@@ -47,7 +47,7 @@ export const artOf       = (account_id) => view("nft_tokens_for_owner", { accoun
 // Each token's metadata.extra is JSON with { seed, cycle, rank, renderer }; pass seed to drawArt().
 
 // ---------- calls (signed by the wallet)
-async function call(method, args, depositYocto = "0", gas = 100) {
+export async function call(method, args, depositYocto = "0", gas = 100) {
   const wallet = await selector.wallet();
   return wallet.signAndSendTransaction({
     receiverId: CONTRACT_ID,
