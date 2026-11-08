@@ -1,2 +1,10 @@
 target/
 node_modules/
+
+# never commit keys or secrets
+.near-credentials/
+*.key
+*.pem
+.env
+.env.*
+*credentials*.json
