@@ -1,7 +1,7 @@
 // Live mode: open index.html?live to play against the deployed contract instead of the simulation.
 // Wired to the chain: wallet, clock/pot/fighters (get_cycle every second), pass mint, strike, finalize, claim.
 // shortcut: market, auctions, gear, hero minting, NFT locking and round history stay simulated; wire them the same way when needed.
-import { CONTRACT_ID, NETWORK, RPC } from "./config.js";
+import { CONTRACT_ID, NETWORK, RPCS } from "./config.js";
 const NAME_SUFFIX = NETWORK === "mainnet" ? ".near" : ".testnet";
 const NS = 1e9;
 const near = y => Number(BigInt(y) / 10n ** 18n) / 1e6; // yocto -> NEAR, 6 decimals, no float noise
@@ -26,9 +26,20 @@ export function toCycle(v) {
 
 // Chain reads go straight to RPC with fetch, so the game is live in about a second;
 // the wallet libraries (hundreds of CDN modules) load in the background and are only awaited for signing.
+let rpcAt = 0; // index of the last RPC that answered
 async function rpcQuery(params) {
-  const r = await fetch(RPC, { method: "POST", headers: { "content-type": "application/json" },
-    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "query", params: { finality: "optimistic", ...params } }) }).then(r => r.json());
+  const body = JSON.stringify({ jsonrpc: "2.0", id: 1, method: "query", params: { finality: "optimistic", ...params } });
+  let r, lastErr;
+  for (let i = 0; i < RPCS.length && !r; i++) {
+    const url = RPCS[(rpcAt + i) % RPCS.length];
+    try {
+      const res = await fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body });
+      const j = res.ok ? await res.json() : null;
+      if (j && !(j.error && j.error.code === -429)) { r = j; rpcAt = (rpcAt + i) % RPCS.length; }
+      else lastErr = new Error(`${new URL(url).host} answered ${res.status}`);
+    } catch (e) { lastErr = e; } // 429s without CORS headers surface here as "Failed to fetch"
+  }
+  if (!r) throw lastErr;
   // missing access keys and view panics come back as result.error, not a top-level error
   if (r.error || r.result?.error) throw new Error(r.error ? r.error.data || r.error.message : r.result.error);
   return r.result;
@@ -44,7 +55,8 @@ async function start() {
   const g = globalThis;
   g.botsTick = () => {}; g.botMarketTick = () => {}; g.settleIfEnded = () => false;
   let cv = null, tick = 0, failed = false; // before `ready`: a restored wallet session calls sync() early
-  const ready = import("./boundora-near.js").then(async N => {
+  // wallet libraries are one local bundle built by web/build-wallet.mjs
+  const ready = import("./boundora-near.bundle.js").then(async N => {
     const selector = await N.initWallet();
     let lastId;
     selector.store.observable.subscribe(async () => {
@@ -59,37 +71,6 @@ async function start() {
     return N;
   });
   ready.catch(e => toast(`Wallets failed to load: ${e.message || e}`));
-
-  const cfg = await view("get_config");
-  Object.assign(CFG, {
-    initial: +cfg.initial_duration_ms / 1000, ext: +cfg.extension_ms / 1000,
-    maxRemain: +cfg.max_remaining_ms / 1000, cooldown: +cfg.cooldown_ms / 1000,
-    baseCost: near(cfg.base_cost), stepBps: cfg.cost_step_bps, maxMult: cfg.max_multiplier,
-    passUsd: cfg.pass_price_usd_cents / 100,
-  });
-
-  async function sync(withAccount) {
-    try {
-      cv = await view("get_cycle");
-      const { now, cycle } = toCycle(cv), prev = S.cycle;
-      S.now = now; S.cycle = cycle;
-      if (prev && prev.id === cycle.id && cycle.count > prev.count) onGesture(cycle.last, cycle.endsAt - prev.endsAt);
-      if (withAccount || tick++ % 5 === 0) {
-        const q = await view("pass_quote");
-        S.nearUsd = +q.near_usd_micro / 1e6 || S.nearUsd;
-        if (S.wallet) {
-          const [pv, cl, bal] = await Promise.all([view("passes_of", { account_id: ME }), view("claimable_of", { account_id: ME }), balanceOf(ME)]);
-          S.passes.set(ME, pv.minted); S.locks.set(ME, pv.locked);
-          S.claimable.set(ME, near(cl)); S.balances.set(ME, near(bal));
-        }
-        renderAll();
-      }
-      failed = false;
-    } catch (e) {
-      if (!failed) toast(`Can't reach ${CONTRACT_ID}: ${e.message || e}`);
-      failed = true;
-    }
-  }
 
   const tx = (p, ok) => p.then(() => { toast(ok); sync(true); }, e => toast(String(e.message || e)));
   const wallet = async () => { const N = await ready; return N; };
@@ -118,8 +99,43 @@ async function start() {
   };
   g.claim = id => { wallet().then(N => tx(N.claim(), "Winnings sent to your wallet.")); return S.claimable.get(id) || 0; };
 
+  renderAll(); // rebind buttons to the handlers above
+  if (S.wantConnect) g.connect(); // clicked Connect before this module ran
+
+  const cfg = await view("get_config");
+  Object.assign(CFG, {
+    initial: +cfg.initial_duration_ms / 1000, ext: +cfg.extension_ms / 1000,
+    maxRemain: +cfg.max_remaining_ms / 1000, cooldown: +cfg.cooldown_ms / 1000,
+    baseCost: near(cfg.base_cost), stepBps: cfg.cost_step_bps, maxMult: cfg.max_multiplier,
+    passUsd: cfg.pass_price_usd_cents / 100,
+  });
+
+  async function sync(withAccount) {
+    try {
+      cv = await view("get_cycle");
+      const { now, cycle } = toCycle(cv), prev = S.cycle;
+      S.now = now; S.cycle = cycle;
+      if (prev && prev.id === cycle.id && cycle.count > prev.count) onGesture(cycle.last, cycle.endsAt - prev.endsAt);
+      if (withAccount || tick++ % 5 === 0) {
+        const q = await view("pass_quote");
+        S.nearUsd = +q.near_usd_micro / 1e6 || S.nearUsd;
+        CFG.passNear = q.fixed_near ? near(q.price) : null; // owner-set NEAR price (0.01) beats the $ price
+        if (S.wallet) {
+          const [pv, cl, bal] = await Promise.all([view("passes_of", { account_id: ME }), view("claimable_of", { account_id: ME }), balanceOf(ME)]);
+          S.passes.set(ME, pv.minted); S.locks.set(ME, pv.locked);
+          S.claimable.set(ME, near(cl)); S.balances.set(ME, near(bal));
+        }
+        renderAll();
+      }
+      failed = false;
+    } catch (e) {
+      if (!failed) toast(`Can't reach ${CONTRACT_ID}: ${e.message || e}`);
+      failed = true;
+    }
+  }
+
   await sync(true);
-  setInterval(sync, 1000);
+  setInterval(sync, 2000); // the frame loop counts the clock down between polls
   toast(`Live on NEAR ${NETWORK}: ${CONTRACT_ID}`);
 }
 
@@ -208,4 +224,4 @@ async function showClaimResult(N, claim) {
   if (ok) { SFX.play("coin"); log(`You claimed ${claim.name}`, "me"); }
 }
 
-if (typeof location !== "undefined" && new URLSearchParams(location.search).has("live")) start();
+if (typeof location !== "undefined" && !new URLSearchParams(location.search).has("demo")) start();

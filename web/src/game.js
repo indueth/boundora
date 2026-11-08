@@ -417,7 +417,9 @@ const CFG = {
   heroPrice: 2, maxHeroMints: 5
 };
 let ME = "you.testnet"; // live mode (near/live.js) swaps in the signed-in account
-const BOTS = [
+// Testnet by default; ?demo runs the offline practice simulation with bots.
+const LIVE = !/[?&]demo/.test(location.search);
+const BOTS = LIVE ? [] : [
   {id:"aurora.near", passes:2, eager:1.0},
   {id:"kepler.near", passes:1, eager:0.8},
   {id:"vesta.near", passes:2, eager:1.2},
@@ -539,7 +541,7 @@ const S={
   cycle:null, botPlan:null, lastSettled:null
 };
 BOTS.forEach(b=>{S.passes.set(b.id,b.passes);S.balances.set(b.id,1e6);});
-S.locks.set("vesta.near",[{collection:"demo-collection.testnet",token:"77"}]);
+if(!LIVE)S.locks.set("vesta.near",[{collection:"demo-collection.testnet",token:"77"}]);
 function newCycle(id,opensAt,pool,seed){
   S.cycle={id,opensAt,endsAt:opensAt+CFG.initial,pool,count:0,last:null,lastAt:opensAt,seed,players:[]};
   S.botPlan={target:12+Math.floor(Math.random()*16)};
@@ -551,7 +553,9 @@ const SUPPLY_BY=[8400,5600,3400,1800,800];
 function equippedN(id){const n=S.equipped.get(id);return n&&S.heroOwner.get(n)===id?n:0;}
 function fxOf(id){const n=equippedN(id);if(!n)return[0,0,0];const f=Heroes.POWER_FX[Heroes.rarityIdx(n)];let ms=f[0]+lvlBonus(heroLv(n)),d=f[1],c=f[2];for(const g of gearOf(n)){ms+=GEAR[g].ms;d+=GEAR[g].disc;c+=GEAR[g].chi;}return[ms,d,c];}
 S.nearUsd=3.71;
-const passNear=()=>+(CFG.passUsd/S.nearUsd).toFixed(4);
+// CFG.passNear: fixed NEAR price set by the owner (set_pass_price_near); otherwise $passUsd at the oracle rate
+const passNear=()=>CFG.passNear??+(CFG.passUsd/S.nearUsd).toFixed(4);
+const passLabel=()=>CFG.passNear!=null?`${fmt(passNear())} NEAR`:`$${CFG.passUsd} (${fmt(passNear())} NEAR)`;
 const hasPass=id=>(S.passes.get(id)||0)>0;
 const multOf=id=>!hasPass(id)?0:Math.min(passTotal(id),CFG.maxMult)+fxOf(id)[2];
 const cost=()=>CFG.baseCost+CFG.baseCost*CFG.stepBps*S.cycle.count/10000;
@@ -640,7 +644,7 @@ const findP=id=>S.cycle.players.find(p=>p.id===id);
 function gesture(id,amount){
   settleIfEnded();
   const c=S.cycle;
-  if(multOf(id)<1)return "Mint your Boundora Pass to play. It costs $5 in NEAR.";
+  if(multOf(id)<1)return `Mint your Boundora Pass to play. It costs ${passLabel()}.`;
   if(S.now<c.opensAt)return "The next round hasn't started yet.";
   const k=costFor(id);
   if(amount<k-1e-9)return "Stake is below the current gesture cost.";
@@ -908,10 +912,10 @@ function renderWallet(){
   w.innerHTML=`<div class="acct"><b>${ME}</b><small>${fmt(S.balances.get(ME))} NEAR</small></div><button class="btn btn-line" id="disc">Leave</button>`;
   $("disc").onclick=()=>{S.wallet=null;renderAll();};
 }
-function connect(){S.wallet={id:ME};if(!S.balances.has(ME))S.balances.set(ME,25);SFX.init();toast("Demo wallet connected: 25 test NEAR.");renderAll();}
-function mintPass(){const bal=S.balances.get(ME),price=passNear();if(bal<price){hint={msg:`You need ${fmt(price)} NEAR ($${CFG.passUsd}) for the pass.`,err:true};return renderAll();}
+function connect(){if(LIVE){S.wantConnect=true;return toast("Loading wallets, one moment…");}S.wallet={id:ME};if(!S.balances.has(ME))S.balances.set(ME,25);SFX.init();toast("Demo wallet connected: 25 test NEAR.");renderAll();}
+function mintPass(){const bal=S.balances.get(ME),price=passNear();if(bal<price){hint={msg:`You need ${fmt(price)} NEAR for the pass.`,err:true};return renderAll();}
   const n=(S.passes.get(ME)||0);if(n>=CFG.maxPasses)return;S.balances.set(ME,bal-price);S.passes.set(ME,n+1);S.treasury+=price;S.pstats.delete(ME);ps(ME);
-  stake=multOf(ME);hint={msg:"",err:false};SFX.play("coin");toast(`Pass minted for ${fmt(price)} NEAR ($${CFG.passUsd}). You can play now.`);log(`You minted a Boundora Pass for ${fmt(price)} NEAR`,"me");renderAll();}
+  stake=multOf(ME);hint={msg:"",err:false};SFX.play("coin");toast(`Pass minted for ${fmt(price)} NEAR. You can play now.`);log(`You minted a Boundora Pass for ${fmt(price)} NEAR`,"me");renderAll();}
 function doStrike(){
   if(!S.wallet){connect();return;}
   if(multOf(ME)<1){mintPass();return;}
@@ -928,12 +932,12 @@ function renderPass(){
   if(!S.wallet){b.innerHTML=`<h3>Your belt</h3><div class="belt">${beltSVG(0)}<div><b>Not connected</b><small>Connect a wallet to step into the dojo.</small></div></div>`;return;}
   const n=passTotal(ME),[,name]=beltOf(n),mult=multOf(ME);stake=Math.max(1,Math.min(stake,Math.max(1,mult)));
   const locked=(S.locks.get(ME)||[]).length;
-  b.innerHTML=`<h3>Your belt</h3>${n?"":`<div class="belt">${beltSVG(n)}<div><b>${name}</b><small>${n?`Pass${locked?` + ${locked} locked NFT`:""}`:"You need a pass to play. It costs $${CFG.passUsd}, which is ${fmt(passNear())} NEAR at $${S.nearUsd.toFixed(2)} per NEAR. It stays yours forever."}</small></div></div>`}
+  b.innerHTML=`<h3>Your belt</h3>${n?"":`<div class="belt">${beltSVG(n)}<div><b>${name}</b><small>${n?`Pass${locked?` + ${locked} locked NFT`:""}`:"You need a pass to play. It costs ${passLabel()}. It stays yours forever."}</small></div></div>`}
     ${hasPass(ME)?(()=>{const q=ps(ME);return `<div class="passcard"><div class="pc-h"><b>Boundora Pass</b><span class="tag sb">Soulbound</span></div><small>Token <code>pass-${ME}</code></small>
       <div class="hnums"><div><small>Member since</small><b>Round ${q.joinedRound}</b></div><div><small>Rounds</small><b>${q.rounds}</b></div><div><small>Strikes</small><b>${q.strikes}</b></div><div><small>Best finish</small><b>${FINISH[q.best]}</b></div></div></div>`;})():""}
     <div class="chi" style="grid-template-columns:repeat(${CFG.maxMult},1fr)" role="group" aria-label="Chi: stake multiplier">${Array.from({length:CFG.maxMult},(_,i)=>`<button data-i="${i+1}" class="${i<mult?"unl":""} ${i<stake&&mult?"sel":""}" ${i<mult?"":"disabled"} aria-label="Chi ${i+1}×${i<mult?"":", locked"}" aria-pressed="${i<stake&&mult>0}"></button>`).join("")}</div>
     <div class="chilab"><span>Chi</span><b>${mult?stake:0}× of ${mult}× unlocked</b></div>
-    <div class="links">${(S.passes.get(ME)||0)<CFG.maxPasses?`<button class="btn btn-line" id="mintMore">Mint your pass: $${CFG.passUsd} (${fmt(passNear())} NEAR)</button>`:""}${locked||!hasPass(ME)?"":`<button class="btn btn-line" id="lock">Lock an NFT for +1 chi</button>`}</div>`;
+    <div class="links">${(S.passes.get(ME)||0)<CFG.maxPasses?`<button class="btn btn-line" id="mintMore">Mint your pass: ${passLabel()}</button>`:""}${locked||!hasPass(ME)?"":`<button class="btn btn-line" id="lock">Lock an NFT for +1 chi</button>`}</div>`;
   b.querySelectorAll(".chi button").forEach(x=>x.onclick=()=>{stake=+x.dataset.i;renderAll();});
   if($("mintMore"))$("mintMore").onclick=mintPass;
   if($("lock"))$("lock").onclick=()=>{S.locks.set(ME,[{collection:"demo-collection.testnet",token:"2187"}]);stake=multOf(ME);toast("demo-collection.testnet #2187 locked. It counts as a pass.");log("You locked demo-collection.testnet #2187","me");renderAll();};
@@ -941,12 +945,12 @@ function renderPass(){
 function renderStrike(){
   const b=$("strikeBox"),c=S.cycle,cool=S.now<c.opensAt;
   let label,sub,cls="strike";
-  if(!S.wallet){label="Enter the dojo";sub="Connect a demo wallet";cls+=" gold";}
-  else if(multOf(ME)<1){label="Mint your pass";sub=`$${CFG.passUsd} in NEAR (${fmt(passNear())} NEAR), required to play`;cls+=" gold";}
+  if(!S.wallet){label="Enter the dojo";sub=LIVE?"Connect your NEAR wallet":"Connect a demo wallet";cls+=" gold";}
+  else if(multOf(ME)<1){label="Mint your pass";sub=`${passLabel()}, required to play`;cls+=" gold";}
   else if(cool){label="Between rounds";sub=`Round ${c.id} opens soon`;}
   else{label="Strike!";sub=`${fmt(costFor(ME)*stake)} NEAR at ${stake}× chi`;}
   b.innerHTML=`<button class="${cls}" id="strikeBtn" ${cool&&S.wallet&&multOf(ME)>0?"disabled":""}>${label}<small>${sub}</small></button>
-    <p class="hint ${hint.err?"err":""}">${hint.msg||(S.wallet&&multOf(ME)>0?`Adds ${CFG.ext+fxOf(ME)[0]}s.<span class="kbdhint"> Press <span class="kbd">Space</span></span>`:"Seven sparring partners are already fighting.")}</p>`;
+    <p class="hint ${hint.err?"err":""}">${hint.msg||(S.wallet&&multOf(ME)>0?`Adds ${CFG.ext+fxOf(ME)[0]}s.<span class="kbdhint"> Press <span class="kbd">Space</span></span>`:(LIVE?"Connect a wallet and mint your pass to fight.":"Seven sparring partners are already fighting."))}</p>`;
   $("strikeBtn").onclick=doStrike;
 }
 function renderMe(){
@@ -1046,7 +1050,7 @@ function renderMint(){
   const cols=["#F4E9D0","#3FB68B","#A77BF0","#F2C14E","#B48CFF"];
   $("mintBox").innerHTML=`<h3>Mint a hero</h3><p style="margin:0;color:var(--mist)">${minted.toLocaleString()} of 20,000 minted.</p>
     <div class="supply">${Heroes.RARITIES.map((r,i)=>`<div class="sup"><span>${r}</span><div class="track"><i style="width:${Math.max(.6,S.heroMinted[i]/SUPPLY_BY[i]*100)}%;background:${cols[i]}"></i></div><small>${S.heroMinted[i].toLocaleString()} / ${SUPPLY_BY[i].toLocaleString()}</small></div>`).join("")}</div>
-    <button class="strike gold" id="mintHeroBtn" style="font-size:1.3rem;padding:14px">${S.wallet?(mine>=CFG.maxHeroMints?"Mint limit reached":`Mint a hero`):"Connect to mint"}<small>${S.wallet?`${CFG.heroPrice} NEAR, ${CFG.maxHeroMints-mine} left for you`:"Demo wallet, test NEAR"}</small></button>`;
+    <button class="strike gold" id="mintHeroBtn" style="font-size:1.3rem;padding:14px">${S.wallet?(mine>=CFG.maxHeroMints?"Mint limit reached":`Mint a hero`):"Connect to mint"}<small>${S.wallet?`${CFG.heroPrice} NEAR, ${CFG.maxHeroMints-mine} left for you`:(LIVE?"NEAR testnet":"Demo wallet, test NEAR")}</small></button>`;
   $("mintHeroBtn").disabled=!!S.wallet&&mine>=CFG.maxHeroMints;
   $("mintHeroBtn").onclick=mintHero;
 }
@@ -1162,16 +1166,18 @@ function renderAll(){const f=document.activeElement&&document.activeElement.id;
 
 /* Boot: two rounds fought instantly so the vault has history */
 newCycle(1,0,0,hash256("boundora-genesis"));
-while(S.history.length<2){S.now+=0.5;botsTick(0.5);settleIfEnded();}
+if(!LIVE)while(S.history.length<2){S.now+=0.5;botsTick(0.5);settleIfEnded();}
 S.feed=S.feed.filter(f=>f.cls==="sys");
 S.now=S.cycle.opensAt+0.5;S.lastSettled=null;
 booting=false;renderMute();
 setFighter("faL",null);setFighter("faR",null);renderPowers();
+if(!LIVE){
 for(const b of BOTS)equipBest(b.id);
 // seed the market: bots mint a few spare heroes and list them
 for(const b of BOTS){for(let i=0;i<4;i++){const rem=SUPPLY_BY.map((x,j)=>x-S.heroMinted[j]),left=rem.reduce((a,c)=>a+c,0);let x=Math.random()*left,r=0;for(;r<5;r++){if((x-=rem[r])<0)break;}takeHero(b.id,r,"Public mint");}equipBest(b.id);}
 for(const b of BOTS){const spare=[...S.heroOwner].filter(([n,o])=>o===b.id&&equippedN(b.id)!==n).map(([n])=>n);for(const n of spare.slice(0,3)){const[lo,hi]=PRICE_BAND[Heroes.rarityIdx(n)];listHero(b.id,n,lo+Math.random()*(hi-lo));}}
 for(let i=0;i<5;i++){const ls=[...S.listings];if(!ls.length)break;const[n,l]=ls[Math.floor(Math.random()*ls.length)];const pool=BOTS.map(b=>b.id).filter(x=>x!==l.seller);buyHero(pool[Math.floor(Math.random()*pool.length)],n);}
+}
 S.feed=S.feed.filter(f=>f.cls==="sys");
 sizeSky();sizeFx();addEventListener("resize",()=>{clearTimeout(sizeSky.h);sizeSky.h=setTimeout(()=>{sizeSky();sizeFx();},150);});
 setLiveSeed(S.cycle.seed,true);renderAll();
@@ -1181,13 +1187,13 @@ setTimeout(()=>{announce(`Round ${S.cycle.id}`);announce("Fight!",true);},400);
 let last=performance.now(),acc=0,slow=0,wasCool=false;
 function frame(t){
   const dt=Math.min(.25,(t-last)/1000);last=t;S.now+=dt;acc+=dt;
-  if(acc>=.1){botsTick(acc);acc=0;if(S.now>=S.cycle.endsAt)settleIfEnded();
+  if(acc>=.1){botsTick(acc);acc=0;if(!LIVE&&S.now>=S.cycle.endsAt)settleIfEnded();
     const cool=S.now<S.cycle.opensAt;
     if(wasCool&&!cool)roundOpened();
     if(!wasCool&&cool){renderStrike();}
     wasCool=cool;
-    if(Math.random()<acc*0+.012)botMarketTick();
-    if(S.now-slow>1){slow=S.now;S.nearUsd=Math.max(.5,S.nearUsd*(1+(Math.random()-.5)*.002));renderMarket();const f=document.activeElement&&document.activeElement.id;renderRoster();renderLog();renderMe();if(f&&$(f)&&document.activeElement!==$(f))$(f).focus();}
+    if(!LIVE&&Math.random()<.012)botMarketTick();
+    if(S.now-slow>1){slow=S.now;if(!LIVE)S.nearUsd=Math.max(.5,S.nearUsd*(1+(Math.random()-.5)*.002));renderMarket();const f=document.activeElement&&document.activeElement.id;renderRoster();renderLog();renderMe();if(f&&$(f)&&document.activeElement!==$(f))$(f).focus();}
     if(cool&&$("nextIn"))$("nextIn").textContent=`Round ${S.cycle.id} starts in ${Math.ceil(S.cycle.opensAt-S.now)}`;
   }
   renderHud();drawSky();drawFx();requestAnimationFrame(frame);

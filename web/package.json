@@ -1,0 +1,24 @@
+{
+  "name": "web",
+  "version": "1.0.0",
+  "description": "",
+  "main": "hero3d.js",
+  "scripts": {
+    "build:wallet": "node build-wallet.mjs",
+    "build": "node build-wallet.mjs && python build.py"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@near-wallet-selector/core": "^8.10.2",
+    "@near-wallet-selector/meteor-wallet": "^8.10.2",
+    "@near-wallet-selector/modal-ui": "^8.10.2",
+    "@near-wallet-selector/my-near-wallet": "^8.10.2",
+    "buffer": "^6.0.3",
+    "esbuild": "^0.28.2",
+    "near-api-js": "^4.0.4",
+    "util": "^0.12.5"
+  },
+  "private": true
+}

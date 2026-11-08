@@ -52,7 +52,7 @@ In the game, a cycle is a **round** and a gesture is a **strike**. Your pass cou
 
 - **Clock:** a cycle opens with 10 minutes. Each gesture adds 60s. The clock can never show more than 15 minutes. There's a 60s pause between cycles.
 - **Cost:** the first gesture costs 0.1 NEAR. Each gesture raises the price by 2% of the base.
-- **Pass (required to play):** every player must mint **one** soulbound Boundora Pass before they can strike. It costs **$5, paid in NEAR**: `pass_quote()` converts $5 at the latest NEAR/USD rate, `mint_pass()` charges that (1% tolerance for price moves while signing) and refunds any extra. It can never be transferred, listed or sold. A locked NFT doesn't replace the pass; it only adds chi. Your pass gives 1× stake. A locked NFT adds one more, and so does an equipped Legendary or Mythic hero, up to 4× in total.
+- **Pass (required to play):** every player must mint **one** soulbound Boundora Pass before they can strike. On `boundora.testnet` it costs a fixed **0.01 NEAR**, set by the owner with `set_pass_price_near`. Without a fixed price, `pass_quote()` converts $5 at the latest NEAR/USD rate instead. `mint_pass()` charges the quote (1% tolerance) and refunds any extra. It can never be transferred, listed or sold. A locked NFT doesn't replace the pass; it only adds chi. Your pass gives 1× stake. A locked NFT adds one more, and so does an equipped Legendary or Mythic hero, up to 4× in total.
 - **Payout when the clock hits zero:**
   - **Final gesture** (last player to gesture): 35% plus a Legendary hero (5% chance of Mythic)
   - **Endurance** (held the last-gesture spot longest, final gesturer excluded): 20% plus an Epic hero
@@ -66,7 +66,7 @@ In the game, a cycle is a **round** and a gesture is a **strike**. Your pass cou
 
 ## Contract API
 
-**Calls:** `new(owner_id, config?, price_keeper?, near_usd_micro?)`, `mint_pass()` *(payable)*, `set_near_usd_price(price_micro_usd)` *(keeper)*, `set_price_keeper` *(owner)*, `pass_quote()` *(view)*, `gesture()` *(payable)*, `finalize()`, `claim()`, `unlock_nft(collection, token_id)`
+**Calls:** `new(owner_id, config?, price_keeper?, near_usd_micro?)`, `mint_pass()` *(payable)*, `set_near_usd_price(price_micro_usd)` *(keeper)*, `set_price_keeper` *(owner)*, `set_pass_price_near(price?)` *(owner; fixed NEAR pass price, `null` = USD)*, `pass_quote()` *(view)*, `gesture()` *(payable)*, `finalize()`, `claim()`, `unlock_nft(collection, token_id)`
 **Owner:** `set_config`, `add_collection`, `remove_collection`, `withdraw_treasury`
 **Heroes:** `mint_hero` *(payable)*, `equip_hero`, `hero_stats(token_id)`, `claim_hero_vault(token_id)`, `buy_gear` *(payable)*, `move_gear`, `gear_catalog`, `open_hero_account` *(payable)*, `hero_account_cost`, `hero_account_of`, `hero_accounts_enabled`, `pass_of(account)`, `equipped_of`, `hero_info(number)`, `hero_supply`, `nft_payout`, `nft_transfer_payout`, `nft_approve`, `nft_revoke`, `nft_revoke_all`, `nft_is_approved`
 **Market:** `list_hero(token_id, price)`, `delist_hero`, `buy_hero` *(payable)*, `get_listings`, `listing_of`, `get_sales`.
@@ -97,7 +97,7 @@ Fund the contract account with a few NEAR so it can cover storage before the fir
 
 `web/index.html` is self-contained, with no build step. It runs the local simulation by default.
 
-**Live mode:** serve `web/` over HTTP (for example `python -m http.server -d web`) and open `index.html?live`. `web/near/live.js` then plays against the deployed contract (`CONTRACT_ID` and `NETWORK` in `web/near/config.js`): wallet sign-in (MyNearWallet, Meteor), the clock, pot and fighters from `get_cycle` every second, pass minting at the `pass_quote` price, strikes, finalize and claim. Chain reads use plain `fetch`, so the game goes live before the wallet libraries finish loading.
+**Live mode:** serve `web/` over HTTP (for example `python -m http.server -d web`) and open `index.html` (it plays on testnet by default; `?demo` runs the offline practice simulation). `web/near/live.js` then plays against the deployed contract (`CONTRACT_ID` and `NETWORK` in `web/near/config.js`): wallet sign-in (MyNearWallet, Meteor), the clock, pot and fighters from `get_cycle` every second, pass minting at the `pass_quote` price, strikes, finalize and claim. Chain reads use plain `fetch`, so the game goes live before the wallet libraries finish loading.
 
 **NEAR names:** a connected player can claim a top-level name (`alice.testnet` on testnet, `alice.near` with `NETWORK = "mainnet"`) through NEAR's own registrar (`create_account` on `testnet` / `near`). The page checks the name is free, makes a new key pair in the browser and shows it (copy or download) before the player signs; 0.1 NEAR from their wallet goes into the new account. The player then imports the name into MyNearWallet or Meteor with that key. If the wallet redirects mid-claim, the result is shown when the page comes back. The market, auctions, gear, hero minting, NFT locking and round history are still simulated in live mode. `node web/near/live.test.mjs` checks the chain-to-page mapping.
 
@@ -122,7 +122,7 @@ Fund the contract account with a few NEAR so it can cover storage before the fir
 
 ## Run everything from this machine
 
-`scripts/local.sh` (Git Bash on Windows) runs the tests, builds both wasm files (embedding the real hero-account contract), creates the testnet account from the faucet if needed, deploys with `scripts/deploy.mjs` (near-api-js, no near CLI) (calling `new` the first time), posts the NEAR/USD price and serves the page at `http://localhost:8000/index.html?live`. Run one step with `scripts/local.sh test|build|deploy|price|serve`. It needs Rust stable with the `wasm32-unknown-unknown` target, Node, Python, and the key file `~/.near-credentials/testnet/<contract>.json`. Set `NEAR_CONTRACT_ID` to use another account.
+`scripts/local.sh` (Git Bash on Windows) runs the tests, builds both wasm files (embedding the real hero-account contract), creates the testnet account from the faucet if needed, deploys with `scripts/deploy.mjs` (near-api-js, no near CLI) (calling `new` the first time), posts the NEAR/USD price and serves the page at `http://localhost:8000/`. Run one step with `scripts/local.sh test|build|deploy|price|serve`. It needs Rust stable with the `wasm32-unknown-unknown` target, Node, Python, and the key file `~/.near-credentials/testnet/<contract>.json`. Set `NEAR_CONTRACT_ID` to use another account.
 
 ## Deploying to testnet with GitHub Actions
 
@@ -132,6 +132,6 @@ Fund the contract account with a few NEAR so it can cover storage before the fir
 4. In the Actions tab, run **Deploy to NEAR testnet** with **init** ticked. The workflow tests, builds with cargo-near on stable Rust, deploys, and reads `get_cycle` back as a check.
 5. After that, every push that changes `contract/` redeploys the code and keeps the existing state.
 
-## Keeping the $5 pass price accurate
+## Keeping the USD pass price accurate (only when no fixed NEAR price is set)
 
 The NEAR/USD rate comes from Pyth's NEAR/USD feed (`c415de8d…6750`). `.github/workflows/price-keeper.yml` fetches it from Pyth's Hermes API every 30 minutes and posts it with `set_near_usd_price`. The deploy workflow posts the first price straight after deploying. Public Hermes now returns 401 without a key, so the script sends `PYTH_API_KEY` as a bearer token when it is set and otherwise falls back to the Coinbase NEAR-USD spot price. If no price is posted for 6 hours, `mint_pass` pauses instead of charging a stale amount. To sign prices from a separate account, call `set_price_keeper`.

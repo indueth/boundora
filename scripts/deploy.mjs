@@ -1,6 +1,7 @@
 // Deploy Boundora to NEAR testnet from this machine (no near CLI needed).
 //   node scripts/deploy.mjs          create the account from the faucet if missing, deploy (init on first deploy), post price, smoke-test
 //   node scripts/deploy.mjs price    only post the NEAR/USD price
+//   node scripts/deploy.mjs pass-price 0.01|usd   fixed NEAR pass price, or back to the USD price
 // Key: ~/.near-credentials/testnet/<id>.json. Env: NEAR_CONTRACT_ID, NEAR_KEY_FILE.
 import { readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
@@ -45,6 +46,12 @@ async function postPrice() {
 }
 
 if (process.argv[2] === "price") { await postPrice(); process.exit(0); }
+if (process.argv[2] === "pass-price") { // node scripts/deploy.mjs pass-price 0.01   (or "usd" to go back to the $ price)
+  const v = process.argv[3];
+  const price = v === "usd" ? null : utils.format.parseNearAmount(v);
+  await account.functionCall({ contractId: ID, methodName: "set_pass_price_near", args: { price }, gas: TGAS(30) });
+  console.log("pass_quote:", await view("pass_quote")); process.exit(0);
+}
 
 if (!(await exists())) {
   await createFromFaucet();

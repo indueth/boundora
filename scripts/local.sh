@@ -22,7 +22,7 @@ b() {
 deps() { [ -d scripts/node_modules/near-api-js ] || (cd scripts && npm install); }
 d() { [ -f contract/target/wasm32-unknown-unknown/release/boundora.wasm ] || b; deps; node scripts/deploy.mjs; }
 price() { deps; node scripts/deploy.mjs price; }
-s() { echo "Open http://localhost:8000/index.html?live"; "$PY" -m http.server 8000 -d web; }
+s() { echo "Open http://localhost:8000/"; "$PY" -m http.server 8000 -d web; }
 
 case "${1:-all}" in
   test) t ;; build) b ;; deploy) d ;; price) price ;; serve) s ;;

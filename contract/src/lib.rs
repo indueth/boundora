@@ -137,6 +137,12 @@ fn hero_account_id(token_id: &str) -> AccountId {
     format!("{}.{}", token_id, env::current_account_id()).parse().unwrap_or_else(|_| env::panic_str("Bad hero account id"))
 }
 
+const PASS_PRICE_KEY: &[u8] = b"~pass_price_yocto";
+
+fn fixed_pass_price() -> Option<u128> {
+    env::storage_read(PASS_PRICE_KEY).and_then(|b| b.try_into().ok()).map(u128::from_le_bytes)
+}
+
 /// Hero gear. Items belong to the hero (its inventory), not to the wallet, so they move
 /// with every sale. [name, price in milliNEAR, extra ms per strike, discount bps, extra chi, XP bonus %]
 pub const GEAR: [(&str, u128, u64, u32, u32, u64); 4] = [
@@ -356,6 +362,8 @@ pub struct PassQuote {
     pub updated_at: U64,
     pub fresh: bool,
     pub keeper: AccountId,
+    /// True when the owner set a fixed NEAR price (`set_pass_price_near`); USD fields are then ignored.
+    pub fixed_near: bool,
 }
 
 #[near(serializers = [json])]
@@ -748,6 +756,17 @@ impl Boundora {
     /// The pass price right now: $5 converted to NEAR at the keeper's NEAR/USD rate.
     pub fn pass_quote(&self) -> PassQuote {
         let now = env::block_timestamp();
+        if let Some(price) = fixed_pass_price() {
+            return PassQuote {
+                usd_cents: self.config.pass_price_usd_cents,
+                near_usd_micro: U64(self.near_usd_micro),
+                price: U128(price),
+                updated_at: U64(self.price_updated_at),
+                fresh: true,
+                keeper: self.price_keeper.clone(),
+                fixed_near: true,
+            };
+        }
         let fresh = self.near_usd_micro > 0
             && now.saturating_sub(self.price_updated_at) <= self.config.price_max_age_ms.0 * MS;
         let price = if self.near_usd_micro > 0 {
@@ -762,6 +781,22 @@ impl Boundora {
             updated_at: U64(self.price_updated_at),
             fresh,
             keeper: self.price_keeper.clone(),
+            fixed_near: false,
+        }
+    }
+
+    /// Owner: charge a fixed NEAR price for the pass (yoctoNEAR) instead of the USD price.
+    /// `None` goes back to the USD price. Stored under its own key, so no state migration.
+    pub fn set_pass_price_near(&mut self, price: Option<U128>) {
+        self.assert_owner();
+        match price {
+            Some(p) => {
+                require!(p.0 > 0, "Price must be above zero");
+                env::storage_write(PASS_PRICE_KEY, &p.0.to_le_bytes());
+            }
+            None => {
+                env::storage_remove(PASS_PRICE_KEY);
+            }
         }
     }
 
@@ -2233,6 +2268,30 @@ mod tests {
         assert_eq!(v.minted, 1);
         assert_eq!(v.stake_multiplier, 1);
         assert_eq!(c.get_treasury().0, near(1.0));
+    }
+
+    #[test]
+    fn fixed_near_pass_price() {
+        let mut c = setup();
+        c.set_pass_price_near(Some(U128(near(0.01))));
+        let q = c.pass_quote();
+        assert!(q.fixed_near && q.fresh);
+        assert_eq!(q.price.0, near(0.01));
+        testing_env!(ctx(1, near(0.01), 1_001 * SEC).build());
+        c.mint_pass();
+        assert_eq!(c.passes_of(accounts(1)).minted, 1);
+        assert_eq!(c.get_treasury().0, near(0.01));
+        testing_env!(ctx(0, 0, 1_002 * SEC).build());
+        c.set_pass_price_near(None);
+        assert!(!c.pass_quote().fixed_near);
+    }
+
+    #[test]
+    #[should_panic(expected = "Owner only")]
+    fn only_owner_sets_pass_price() {
+        let mut c = setup();
+        testing_env!(ctx(1, 0, 1_001 * SEC).build());
+        c.set_pass_price_near(Some(U128(1)));
     }
 
     #[test]
