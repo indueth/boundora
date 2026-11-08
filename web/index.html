@@ -1355,7 +1355,7 @@ function renderWallet(){
   w.innerHTML=`<div class="acct"><b>${ME}</b><small>${fmt(S.balances.get(ME))} NEAR</small></div><button class="btn ice sm" id="disc">Leave</button>`;
   $("disc").onclick=()=>{S.wallet=null;renderAll();};
 }
-// Actions the live layer (near/live.js) replaces with contract calls; these are the ?demo versions.
+// Actions the live layer (near/live.js) replaces with contract calls (local fallbacks, not used on the site).
 function lockNft(){S.locks.set(ME,[{collection:"demo-collection.testnet",token:"2187"}]);stake=multOf(ME);toast("demo-collection.testnet #2187 locked. It counts as a pass.");log("You locked demo-collection.testnet #2187","me");renderAll();}
 function equipHero(n){S.equipped.set(ME,n);return null;}
 function connect(){if(LIVE){S.wantConnect=true;return toast("Loading wallets, one moment…");}S.wallet={id:ME};if(!S.balances.has(ME))S.balances.set(ME,25);SFX.init();toast("Demo wallet connected: 25 test NEAR.");renderAll();}
