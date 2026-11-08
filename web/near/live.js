@@ -101,10 +101,16 @@ function installNftLayer({ view, wallet }) {
       gear: s.gear.map(name => GEAR.findIndex(x => x.name === name)).filter(i => i >= 0), acct: !!s.account_id });
   };
   const g = globalThis, CONFIRM = "Confirm in your wallet…";
-  let busy = false, gearLoaded = false;
+  let running = null, again = false, gearLoaded = false;
 
-  async function refresh() {
-    if (busy) return; busy = true;
+  // A refresh asked for while one runs queues one more run after it, so callers that await it
+  // (e.g. after minting) always see chain state from after their transaction.
+  function refresh() {
+    if (running) { again = true; return running; }
+    running = (async () => { do { again = false; await refreshOnce(); } while (again); })().finally(() => { running = null; });
+    return running;
+  }
+  async function refreshOnce() {
     try {
       if (!gearLoaded) {
         (await view("gear_catalog")).forEach(c => { if (GEAR[c.id]) GEAR[c.id].price = near(c.price); });
@@ -149,7 +155,6 @@ function installNftLayer({ view, wallet }) {
       if (typeof syncArena === "function") syncArena();
       renderAll();
     } catch (e) { console.warn("hero sync", e); }
-    finally { busy = false; }
   }
 
   // sign a contract call; refresh chain state when it lands. Returns the text the UI shows meanwhile.
