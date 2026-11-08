@@ -8,7 +8,7 @@ Boundora is a competitive, cycle-based game on NEAR, with a 20,000-piece hero NF
 
 | Path | What it is |
 |---|---|
-| `vault/` | The small contract deployed inside each hero's own NEAR account (`hero-N.<boundora>`). Only Boundora can move NEAR out of it, and only for the hero's current owner. 3 unit tests. `res/vault.wasm` is the compiled contract (built by `scripts/local.sh build` or the deploy workflow) and is embedded in the main contract, which deploys it into each new hero account. |
+| `vault/` | The small contract deployed inside each hero's own NEAR account (`hero-N.<boundora>`). 3 unit tests. `res/vault.wasm` is the compiled contract (built by `scripts/local.sh build` or the deploy workflow) and is embedded in the main contract, which deploys it into each new hero account. |
 | `contract/` | Rust smart contract (near-sdk 5.30): cycles, gestures, ranking, payouts, soulbound passes, NFT locking, the 20,000 Boundora Heroes (NEP-171, NEP-199 royalties, approvals) with equippable powers, levels, gear inventories, their own NEAR vaults and optional sub-accounts; the pass is a soulbound NEP-171 token. 64 unit tests. |
 | `web/index.html` | The playable dojo game: a fighting-game HUD, Round/Fight/K.O. calls, combo counter, hit effects and sound, belts and a chi gauge, heroes as the fighters, hero minting and equipping, and a browser for all 20,000 heroes. It plays on NEAR testnet against `boundora.testnet`; `?demo` runs a local simulation with practice bots and arcade-speed clocks. |
 | `web/hero3d.js` | The 3D hero renderer (three.js, cartoon shading with outlines). It builds each hero from the same traits, renders card images, and drives the spinning profile view and the arena fighters. |
