@@ -92,6 +92,7 @@ In the game, a cycle is a **round** and a gesture is a **strike**. Your pass cou
   - **Treasury** (pays storage for minted art): 5%
   - 2 Common heroes are raffled among players who didn't place.
 - If only one person played, the iron-stance share goes to the final striker.
+- **Practice bots:** john, maja and khala liven up quiet rounds. They exist only in the page: they never send transactions, hold no NEAR or NFTs, don't change the real clock or pot, and can't win prizes. They're labelled *Practice bot* in the fighter list, the feed and the arena, and only practise after about 20 s without a real strike; real players always take the arena spots first.
 - Winnings are credited and pulled with **Claim** (`claim()`). This keeps settlement to a single transaction and avoids failed transfers.
 - **Settling a round:** anyone can call `finalize()` after zero, and the next strike also settles the old round. If the new round hasn't opened yet, that strike is refunded rather than reverted, so the settlement still goes through.
 

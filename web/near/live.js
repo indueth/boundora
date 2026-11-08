@@ -222,6 +222,54 @@ function installNftLayer({ view, wallet }) {
   return { refresh };
 }
 
+// ---------- practice bots: john, maja and khala liven up quiet rounds
+// Page-only and clearly labelled: they never send transactions, hold no NEAR or NFTs, and don't
+// change the real clock or pot. They only practise while no real player has struck for a while.
+const PRACTICE_BOTS = ["john", "maja", "khala"];
+const BOT_QUIET_MS = 20000; // practise only after this long without a real strike
+const isBot = id => typeof id === "string" && id.startsWith("bot:");
+function installPracticeBots() {
+  const g = globalThis, practice = Object.fromEntries(PRACTICE_BOTS.map(b => [b, 0]));
+  let lastBot = null, lastBotAt = 0;
+  S.lastRealStrike = Date.now();
+  const botId = b => `bot:${b}`;
+
+  setInterval(() => {
+    const c = S.cycle;
+    if (!c || c.status !== "open" || Date.now() - S.lastRealStrike < BOT_QUIET_MS || Math.random() > 0.45) return;
+    const b = PRACTICE_BOTS[Math.floor(Math.random() * PRACTICE_BOTS.length)];
+    practice[b]++; lastBot = b; lastBotAt = Date.now();
+    log(`<b>${b}</b> (practice bot) took a practice strike`, "sys");
+    if (typeof animateFight === "function") animateFight();
+    if (typeof sparks === "function") sparks(10, ["#BFE3FF", "#FFFFFF", "#93A3B8"]);
+    renderRoster(); renderLog();
+  }, 4500);
+
+  // fighter list: bots listed under the real players
+  const baseRoster = g.renderRoster;
+  g.renderRoster = () => {
+    baseRoster();
+    $("roster").insertAdjacentHTML("beforeend", PRACTICE_BOTS.map(b =>
+      `<div class="fr bot"><span class="pos">&ndash;</span>${art(heroFor(botId(b)))}
+        <div style="min-width:0"><b>${b}</b><span class="badge">Practice bot</span><small style="display:block">No NEAR, no NFTs, not in the prizes</small></div>
+        <div class="num">${practice[b]} practice<small>strike${practice[b] === 1 ? "" : "s"}</small></div></div>`).join(""));
+  };
+
+  // arena: the latest practising bot fills an empty challenger spot (real players always win the spot)
+  const baseHud = g.renderHud;
+  g.renderHud = () => {
+    baseHud();
+    const c = S.cycle, realChallenger = c.players.some(p => p.id !== c.last);
+    const want = !realChallenger && lastBot && Date.now() - lastBotAt < 90000 ? botId(lastBot) : null;
+    const R = $("fR");
+    if (want && R.dataset.id !== want) {
+      setFighter("faR", want);
+      R.innerHTML = fighterHTML(want, "Practice bot (no NEAR)", 30, false);
+      R.dataset.id = want;
+    }
+  };
+}
+
 async function start() {
   const g = globalThis;
   g.botsTick = () => {}; g.botMarketTick = () => {}; g.settleIfEnded = () => false;
@@ -273,6 +321,7 @@ async function start() {
     tx(N.gesture((BigInt(cv.current_cost) * BigInt(stake)).toString()), "Hit! You hold the final strike.");
   };
   nft = installNftLayer({ view, wallet });
+  installPracticeBots();
   g.claim = id => { wallet().then(N => tx(N.claim(), "Winnings sent to your wallet.")); return S.claimable.get(id) || 0; };
 
   renderAll(); // rebind buttons to the handlers above
@@ -291,7 +340,7 @@ async function start() {
       cv = await view("get_cycle");
       const { now, cycle } = toCycle(cv), prev = S.cycle;
       S.now = now; S.cycle = cycle; cycle.status = cv.status; // "open" | "cooldown" | "awaiting_finalize"
-      if (synced && prev.id === cycle.id && cycle.count > prev.count) onGesture(cycle.last, cycle.endsAt - prev.endsAt);
+      if (synced && prev.id === cycle.id && cycle.count > prev.count) { S.lastRealStrike = Date.now(); onGesture(cycle.last, cycle.endsAt - prev.endsAt); }
       if (synced && prev.id !== cycle.id) roundEnded(); // settled on chain: K.O. card, awards, new heroes
       synced = true;
       if (withAccount || tick++ % 5 === 0) {

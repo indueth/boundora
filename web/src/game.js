@@ -725,7 +725,7 @@ function botsTick(dt){
    ============================================================ */
 const $=id=>document.getElementById(id);
 const fmt=n=>n>=100?n.toFixed(1):n>=10?n.toFixed(2):n.toFixed(3);
-const short=id=>id===ME?"You":id.replace(/\.near$|\.testnet$/,"");
+const short=id=>id===ME?"You":String(id).replace(/^bot:/,"").replace(/\.near$|\.testnet$/,""); // bot:john -> john
 const reduceMotion=matchMedia("(prefers-reduced-motion: reduce)").matches;
 let booting=true, stake=1, hint={msg:"",err:false};
 const RCLS=["common","rare","epic","legendary","mythic"];
