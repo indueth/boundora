@@ -1,0 +1,11 @@
+# Upload only the website: everything else (contract, scripts, keys, local settings) stays out.
+/*
+!/web
+!/vercel.json
+/web/node_modules
+/web/package.json
+/web/package-lock.json
+/web/build.py
+/web/build-wallet.mjs
+/web/src
+/web/near/*.test.mjs
