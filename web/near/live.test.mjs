@@ -38,3 +38,11 @@ const leak = userError(new Error("fetch https://near-testnet.drpc.org failed: ed
 assert.equal(leak, "Something went wrong. Please try again.");
 assert.equal(userError(undefined), "Something went wrong. Please try again.");
 console.log("userError ok");
+
+// Meteor's web wallet signs in a popup; a blocked popup must say so, not "Something went wrong"
+assert.match(userError(new Error("Couldn't open popup window to complete wallet action")), /blocked the wallet window/);
+assert.match(userError(new Error("User refused to allow the popup window to open")), /blocked the wallet window/);
+assert.match(userError(new Error("Window is closed, need to allow popup")), /blocked the wallet window/);
+assert.match(userError(new Error("A new action was started by the user, old action failed")), /already open/);
+assert.equal(userError(new Error("User closed the window before completing the action")), "Transaction cancelled.");
+console.log("wallet popup errors ok");

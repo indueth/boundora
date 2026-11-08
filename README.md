@@ -11,6 +11,7 @@ Built for the NEAR Hackathon, track **NFTs That Do Something**. It runs on testn
 ## How to play
 
 1. **Get a testnet wallet:** [MyNearWallet (testnet)](https://testnet.mynearwallet.com) or [Meteor Wallet](https://wallet.meteorwallet.app) (switch it to testnet).
+   Meteor's web wallet signs each action in a small pop-up window, so **allow pop-ups for boundora.vercel.app** (or use the Meteor browser extension, or MyNearWallet, which needs no pop-ups).
 2. **Get free test NEAR** from a faucet such as [near-faucet.io](https://near-faucet.io).
 3. Open **https://boundora.vercel.app** and click **Connect wallet**.
 4. **Mint your pass** (0.01 test NEAR, one per player, soulbound). It's your membership card and it records your rounds, strikes and wins.

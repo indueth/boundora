@@ -58,6 +58,9 @@ export function userError(e) {
   const raw = String((e && e.message) ?? e ?? "");
   const panic = raw.match(/panic_msg:\s*\\?"(.{1,200}?)\\?"\s*\}/) || raw.match(/Smart contract panicked: ([^\n"\\]{1,200})/);
   if (panic) return panic[1];
+  if (/open popup|allow popup|allow the popup|refused to allow/i.test(raw))
+    return "Your browser blocked the wallet window. Allow pop-ups for this site (icon in the address bar), then try again.";
+  if (/new action was started/i.test(raw)) return "Finish or close the wallet window that is already open, then try again.";
   if (/reject|cancel|denied|User closed|closed the window/i.test(raw)) return "Transaction cancelled.";
   if (/NotEnoughBalance|not enough balance|insufficient/i.test(raw)) return "Not enough NEAR in your wallet for that.";
   if (/No wallet selected|not signed in/i.test(raw)) return "Connect your wallet first.";
@@ -95,7 +98,11 @@ function installNftLayer({ view, wallet }) {
   async function refresh() {
     if (busy) return; busy = true;
     try {
-      if (!gearLoaded) { (await view("gear_catalog")).forEach(c => { if (GEAR[c.id]) GEAR[c.id].price = near(c.price); }); gearLoaded = true; }
+      if (!gearLoaded) {
+        (await view("gear_catalog")).forEach(c => { if (GEAR[c.id]) GEAR[c.id].price = near(c.price); });
+        S.heroAcctCost = await view("hero_account_cost"); // cached so opening an account goes straight to the wallet
+        gearLoaded = true;
+      }
       S.history = (await view("get_history", { limit: 10 })).map(toSummary); // rounds and their award heroes
       const supply = await view("hero_supply");
       S.heroMinted = supply.minted_by_rarity.map(Number); CFG.heroPrice = near(supply.price);
@@ -162,10 +169,9 @@ function installNftLayer({ view, wallet }) {
   g.buyGear = (id, n, gi) => act("buy_gear", { token_id: tok(n), item: gi }, yocto(GEAR[gi].price), 50, `${GEAR[gi].name} added to hero #${n}.`);
   g.moveGear = (id, a, b, gi) => act("move_gear", { from_token: tok(a), to_token: tok(b), item: gi }, "0", 50, `Moved to hero #${b}.`);
   g.claimVault = (id, n) => act("claim_hero_vault", { token_id: tok(n) }, "0", 100, `Claimed hero #${n}'s vault.`);
-  g.openAccount = (id, n) => {
-    view("hero_account_cost").then(c => act("open_hero_account", { token_id: tok(n) }, c, 300, `Hero #${n} now has its own NEAR account.`));
-    return CONFIRM;
-  };
+  g.openAccount = (id, n) => S.heroAcctCost
+    ? act("open_hero_account", { token_id: tok(n) }, S.heroAcctCost, 300, `Hero #${n} now has its own NEAR account.`)
+    : "Still loading hero account prices. Try again in a moment.";
   g.listHero = (id, n, price) => price >= 0.01
     ? act("list_hero", { token_id: tok(n), price: yocto(+price.toFixed(6)) }, "0", 50, `Hero #${n} listed for ${fmt(price)} NEAR.`)
     : "Minimum price is 0.01 NEAR.";
@@ -232,7 +238,7 @@ async function start() {
     $("nameBtn").onclick = async () => openNameClaim(await wallet());
   };
   g.mintPass = async () => {
-    const q = await view("pass_quote");
+    const q = S.passQuote || await view("pass_quote"); // cached by sync(), so the wallet opens right away
     if (!q.fresh) return toast("The NEAR price feed is stale. Try again shortly.");
     tx((await wallet()).mintPass(q.price), "Pass minted. You can play now.");
   };
@@ -268,7 +274,7 @@ async function start() {
       if (synced && prev.id !== cycle.id) roundEnded(); // settled on chain: K.O. card, awards, new heroes
       synced = true;
       if (withAccount || tick++ % 5 === 0) {
-        const q = await view("pass_quote");
+        const q = await view("pass_quote"); S.passQuote = q;
         S.nearUsd = +q.near_usd_micro / 1e6 || S.nearUsd;
         CFG.passNear = q.fixed_near ? near(q.price) : null; // owner-set NEAR price (0.01) beats the $ price
         if (S.wallet) {
