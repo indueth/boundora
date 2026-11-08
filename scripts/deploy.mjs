@@ -10,15 +10,15 @@ import { fileURLToPath } from "node:url";
 import { connect, keyStores, KeyPair, transactions, utils } from "near-api-js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const ID = process.env.NEAR_CONTRACT_ID || "boundora-okafor.testnet";
+const ID = process.env.NEAR_CONTRACT_ID || "boundora.testnet";
 const KEY = process.env.NEAR_KEY_FILE || join(homedir(), ".near-credentials", "testnet", `${ID}.json`);
 const WASM = join(ROOT, "contract/target/wasm32-unknown-unknown/release/boundora.wasm");
-const RPC = "https://rpc.testnet.near.org";
+const RPC = "https://test.rpc.fastnear.com"; // rpc.testnet.near.org is deprecated (429)
 const TGAS = n => BigInt(n) * 10n ** 12n;
 
 const cred = JSON.parse(readFileSync(KEY, "utf8"));
 const keyStore = new keyStores.InMemoryKeyStore();
-await keyStore.setKey("testnet", ID, KeyPair.fromString(cred.private_key));
+await keyStore.setKey("testnet", ID, KeyPair.fromString(cred.private_key || cred.secret_key));
 const near = await connect({ networkId: "testnet", nodeUrl: RPC, keyStore });
 const account = await near.account(ID);
 const view = (methodName, args = {}) => account.viewFunction({ contractId: ID, methodName, args });

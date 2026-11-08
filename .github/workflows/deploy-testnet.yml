@@ -1,7 +1,7 @@
 # Build the Boundora contract and deploy it to NEAR testnet.
 #
 # One-time setup (GitHub repo > Settings > Secrets and variables > Actions):
-#   NEAR_CONTRACT_ID   e.g. boundora-okafor.testnet   (the account the contract lives on)
+#   NEAR_CONTRACT_ID   e.g. boundora.testnet           (the account the contract lives on)
 #   NEAR_PUBLIC_KEY    ed25519:...                     (a full-access key of that account)
 #   NEAR_PRIVATE_KEY   ed25519:...
 #

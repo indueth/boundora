@@ -15,7 +15,9 @@ let selector, modal;
 
 export async function initWallet() {
   selector = await setupWalletSelector({
-    network: NETWORK,
+    // custom network so the selector doesn't fall back to the deprecated rpc.*.near.org
+    network: { networkId: NETWORK, nodeUrl: RPC, helperUrl: `https://helper.${NETWORK}.near.org`,
+      explorerUrl: `https://${NETWORK === "mainnet" ? "" : "testnet."}nearblocks.io`, indexerUrl: `https://api.${NETWORK === "mainnet" ? "" : "testnet."}nearblocks.io` },
     modules: [setupMyNearWallet(), setupMeteorWallet()],
   });
   modal = setupModal(selector, { contractId: CONTRACT_ID });

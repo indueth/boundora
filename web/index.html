@@ -1124,7 +1124,7 @@ function dropGear(id,salt){const n=equippedN(id);if(!n)return;const x=hs(n);if(x
   const r=parseInt(hash256(salt+n+S.now).slice(0,6),16);let g=free.includes(3)&&r%10===0?3:free.filter(z=>z!==3)[Math.floor(r/10)%Math.max(1,free.filter(z=>z!==3).length)];if(g===undefined)return;
   x.gear.push(g);if(id===ME&&!booting)log(`Hero #${n} found a ${GEAR[g].name}`,"me");}
 /* Hero accounts: hero-N.boundora.testnet (sub-account that holds the hero's NEAR) */
-const CONTRACT_ID="boundora-okafor.testnet",HERO_ACCT_COST=1.2;
+const CONTRACT_ID="boundora.testnet",HERO_ACCT_COST=1.2;
 const acctOf=n=>`hero-${n}.${CONTRACT_ID}`;
 function openAccount(id,n){if(S.heroOwner.get(n)!==id)return "You don't own that hero.";const x=hs(n);if(x.acct)return "This hero already has an account.";
   if((S.balances.get(id)||0)<HERO_ACCT_COST)return `You need ${fmt(HERO_ACCT_COST)} NEAR to cover the account's storage.`;
