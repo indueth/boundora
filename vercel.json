@@ -40,15 +40,27 @@
   ],
   "redirects": [
     {
-      "source": "/:path*",
+      "source": "/",
       "has": [
         {
           "type": "host",
           "value": "www.boundora.xyz"
         }
       ],
-      "destination": "https://boundora.xyz/:path*",
+      "destination": "https://boundora.xyz/",
+      "permanent": true
+    },
+    {
+      "source": "/:path+",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.boundora.xyz"
+        }
+      ],
+      "destination": "https://boundora.xyz/:path+",
       "permanent": true
     }
-  ]
+  ],
+  "trailingSlash": false
 }
