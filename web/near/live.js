@@ -3,6 +3,8 @@
 // shortcut: market, auctions, gear, hero minting, NFT locking and round history stay simulated; wire them the same way when needed.
 import { CONTRACT_ID, NETWORK, RPCS } from "./config.js";
 const NAME_SUFFIX = NETWORK === "mainnet" ? ".near" : ".testnet";
+const FAUCET_URL = "https://near-faucet.io"; // free NEAR testnet tokens
+const LOW_BALANCE = 0.15; // NEAR: below about one strike, the faucet button is highlighted
 const NS = 1e9;
 const near = y => Number(BigInt(y) / 10n ** 18n) / 1e6; // yocto -> NEAR, 6 decimals, no float noise
 
@@ -232,9 +234,12 @@ async function start() {
   const baseRenderWallet = g.renderWallet;
   g.renderWallet = () => {
     baseRenderWallet();
+    // New players need test NEAR first: link the faucet; highlight it when a connected wallet runs low
+    const low = S.wallet && (S.balances.get(ME) || 0) < LOW_BALANCE;
+    $("wallet").insertAdjacentHTML("afterbegin", `<a class="btn ${low ? "blue" : "ice"} sm" id="faucetBtn" href="${FAUCET_URL}" target="_blank" rel="noopener" title="Get free NEAR testnet tokens">Free<span class="long"> test</span> NEAR</a>`);
     if (!$("disc")) return;
     $("disc").onclick = async () => (await wallet()).disconnect();
-    $("disc").insertAdjacentHTML("beforebegin", `<button class="btn ice sm" id="nameBtn">Claim a ${NAME_SUFFIX} name</button>`);
+    $("disc").insertAdjacentHTML("beforebegin", `<button class="btn ice sm" id="nameBtn">Claim<span class="long"> a ${NAME_SUFFIX}</span> name</button>`);
     $("nameBtn").onclick = async () => openNameClaim(await wallet());
   };
   g.mintPass = async () => {
