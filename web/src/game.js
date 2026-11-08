@@ -416,7 +416,7 @@ const CFG = {
   volumeWinners: 3, art: {final:1, endurance:1, volume:1, raffle:2},
   heroPrice: 2, maxHeroMints: 5
 };
-const ME = "you.testnet";
+let ME = "you.testnet"; // live mode (near/live.js) swaps in the signed-in account
 const BOTS = [
   {id:"aurora.near", passes:2, eager:1.0},
   {id:"kepler.near", passes:1, eager:0.8},

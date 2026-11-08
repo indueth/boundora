@@ -69,3 +69,8 @@ export async function lockNft(collectionId, tokenId) {
 }
 export const toNear = (yocto) => Number(utils.format.formatNearAmount(yocto, 4));
 export const toYocto = (near) => utils.format.parseNearAmount(String(near));
+export const passQuote  = () => view("pass_quote");
+export async function balanceOf(account_id) {
+  const a = await rpc.query({ request_type: "view_account", finality: "final", account_id });
+  return a.amount;
+}

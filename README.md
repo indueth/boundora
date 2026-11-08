@@ -95,11 +95,9 @@ Fund the contract account with a few NEAR so it can cover storage before the fir
 
 ## Front end
 
-`web/index.html` is self-contained, with no build step. To go live:
+`web/index.html` is self-contained, with no build step. It runs the local simulation by default.
 
-1. Move the page into a Vite or Next.js app.
-2. Import `web/near/boundora-near.js`.
-3. Replace the simulated `gesture`, `mint`, `claim` and `S.cycle` reads with the adapter's calls, and poll `getCycle()` every second for the clock.
+**Live mode:** serve `web/` over HTTP (for example `python -m http.server -d web`) and open `index.html?live`. `web/near/live.js` then plays against the deployed contract (`CONTRACT_ID` in `web/near/boundora-near.js`): wallet sign-in (MyNearWallet, Meteor), the clock, pot and fighters from `get_cycle` every second, pass minting at the `pass_quote` price, strikes, finalize and claim. The market, auctions, gear, hero minting, NFT locking and round history are still simulated in live mode. `node web/near/live.test.mjs` checks the chain-to-page mapping.
 
 ## How Boundora fits "NFTs That Do Something"
 
