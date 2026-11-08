@@ -51,6 +51,20 @@ const accountExists = account_id => rpcQuery({ request_type: "view_account", acc
   .then(() => true, e => /UNKNOWN_ACCOUNT|does(n't| not) exist/.test(e.message) ? false : Promise.reject(e));
 const hasKey = (account_id, public_key) => rpcQuery({ request_type: "view_access_key", account_id, public_key }).then(() => true, () => false);
 
+// ---------- errors players may see
+// Only the contract's own require!() text (static, written for players) or a plain summary.
+// Raw RPC/wallet errors can carry endpoints, JSON, stack traces or key material: console only.
+export function userError(e) {
+  const raw = String((e && e.message) ?? e ?? "");
+  const panic = raw.match(/panic_msg:\s*\\?"(.{1,200}?)\\?"\s*\}/) || raw.match(/Smart contract panicked: ([^\n"\\]{1,200})/);
+  if (panic) return panic[1];
+  if (/reject|cancel|denied|User closed|closed the window/i.test(raw)) return "Transaction cancelled.";
+  if (/NotEnoughBalance|not enough balance|insufficient/i.test(raw)) return "Not enough NEAR in your wallet for that.";
+  if (/No wallet selected|not signed in/i.test(raw)) return "Connect your wallet first.";
+  return "Something went wrong. Please try again.";
+}
+const fail = e => { console.error(e); toast(userError(e)); };
+
 // ---------- heroes, gear, vaults, hero accounts, market, bids, auctions: all on chain
 // "1.5" NEAR -> yocto string, exact (no float math)
 export const yocto = n => {
@@ -130,7 +144,7 @@ function installNftLayer({ view, wallet }) {
   const act = (method, args, deposit = "0", gas = 100, ok) => {
     if (!S.wallet) { g.connect(); return "Connect a wallet first."; }
     wallet().then(N => N.call(method, args, deposit, gas))
-      .then(() => { if (ok) { SFX.play("coin"); toast(ok); } return refresh(); }, e => toast(String(e.message || e)));
+      .then(() => { if (ok) { SFX.play("coin"); toast(ok); } return refresh(); }, fail);
     return CONFIRM;
   };
 
@@ -142,7 +156,7 @@ function installNftLayer({ view, wallet }) {
       await refresh();
       const n = [...S.heroOwner].find(([m, o]) => o === ME && !before.has(m));
       SFX.play("gong"); if (n) openHero(n[0], true); else toast("Hero minted.");
-    }, e => toast(String(e.message || e)));
+    }, fail);
   };
   g.equipHero = n => act("equip_hero", { token_id: tok(n) }, "0", 50, `Equipped hero #${n}.`);
   g.buyGear = (id, n, gi) => act("buy_gear", { token_id: tok(n), item: gi }, yocto(GEAR[gi].price), 50, `${GEAR[gi].name} added to hero #${n}.`);
@@ -179,7 +193,7 @@ function installNftLayer({ view, wallet }) {
     const v = prompt(`Lock an NFT for +1 chi. Approved: ${cols.join(", ")}\nEnter collection:token_id`, `${cols[0]}:`);
     const [col, id] = (v || "").split(":");
     if (!cols.includes(col) || !id) return v && toast("Use an approved collection and a token id, like collection.testnet:12.");
-    (await wallet()).lockNft(col, id).then(() => { toast(`${col} #${id} locked.`); refresh(); }, e => toast(String(e.message || e)));
+    (await wallet()).lockNft(col, id).then(() => { toast(`${col} #${id} locked.`); refresh(); }, fail);
   };
   return { refresh };
 }
@@ -204,9 +218,9 @@ async function start() {
     if (pending) showClaimResult(N, pending); // back from a wallet redirect mid-claim
     return N;
   });
-  ready.catch(e => toast(`Wallets failed to load: ${e.message || e}`));
+  ready.catch(e => { console.error(e); toast("Wallet sign-in couldn't load. Refresh the page to try again."); });
 
-  const tx = (p, ok) => p.then(() => { toast(ok); sync(true); nft?.refresh(); }, e => toast(String(e.message || e)));
+  const tx = (p, ok) => p.then(() => { toast(ok); sync(true); nft?.refresh(); }, fail);
   const wallet = async () => { const N = await ready; return N; };
   g.connect = async () => { SFX.init(); toast("Opening wallets…"); (await wallet()).connect(); };
   const baseRenderWallet = g.renderWallet;
@@ -266,7 +280,7 @@ async function start() {
       }
       failed = false;
     } catch (e) {
-      if (!failed) toast(`Can't reach ${CONTRACT_ID}: ${e.message || e}`);
+      if (!failed) { console.error(e); toast("Can't reach the NEAR network right now. Retrying…"); }
       failed = true;
     }
   }
@@ -343,7 +357,7 @@ function openNameClaim(N) {
     const claim = { name: name + sfx, ...kp };
     localStorage.setItem(PENDING, JSON.stringify(claim));
     N.claimName(name, kp.publicKey).then(() => showClaimResult(N, claim), e => {
-      localStorage.removeItem(PENDING); msg(String(e.message || e), true); ready();
+      console.error(e); localStorage.removeItem(PENDING); msg(userError(e), true); ready();
     });
   };
   d.showModal(); $("nmIn").focus();

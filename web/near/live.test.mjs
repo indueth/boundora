@@ -24,3 +24,17 @@ assert.equal(yocto("0.01"), "10000000000000000000000");
 assert.equal(yocto(1.5), "1500000000000000000000000");
 assert.equal(yocto("0.123456789012345678901234567"), "123456789012345678901234"); // extra digits dropped
 console.log("yocto ok");
+
+// players see the contract's message or a plain summary, never raw RPC/wallet internals
+import { userError } from "./live.js";
+const txErr = new Error('{"index":0,"kind":{"index":0,"kind":{"FunctionCallError":{"ExecutionError":"Smart contract panicked: Only the hero\'s owner can empty its vault"}}}}');
+const viewErr = new Error('Querying failed: wasm execution failed with error: HostError(GuestPanic { panic_msg: "No such hero" }).\n{\n  "block_hash": "CA84iTc3omqcDhX2FChvSWWyV3CDm8EEYrM9KyxGUTbx",\n  "error": "wasm execution failed"\n}');
+assert.equal(userError(txErr), "Only the hero's owner can empty its vault");
+assert.equal(userError(viewErr), "No such hero");
+assert.equal(userError(new Error("User rejected the request")), "Transaction cancelled.");
+assert.equal(userError(new Error("Sender bob.testnet does not have enough balance (NotEnoughBalance)")), "Not enough NEAR in your wallet for that.");
+assert.equal(userError(new Error("No wallet selected")), "Connect your wallet first.");
+const leak = userError(new Error("fetch https://near-testnet.drpc.org failed: ed25519:4xK...secret at Object.<anonymous> (live.js:12)"));
+assert.equal(leak, "Something went wrong. Please try again.");
+assert.equal(userError(undefined), "Something went wrong. Please try again.");
+console.log("userError ok");
