@@ -935,7 +935,7 @@ function renderPass(){
   if(!S.wallet){b.innerHTML=`<h3>Your belt</h3><div class="belt">${beltSVG(0)}<div><b>Not connected</b><small>Connect a wallet to step into the dojo.</small></div></div>`;return;}
   const n=passTotal(ME),[,name]=beltOf(n),mult=multOf(ME);stake=Math.max(1,Math.min(stake,Math.max(1,mult)));
   const locked=(S.locks.get(ME)||[]).length;
-  b.innerHTML=`<h3>Your belt</h3>${n?"":`<div class="belt">${beltSVG(n)}<div><b>${name}</b><small>${n?`Pass${locked?` + ${locked} locked NFT`:""}`:"You need a pass to play. It costs ${passLabel()}. It stays yours forever."}</small></div></div>`}
+  b.innerHTML=`<h3>Your belt</h3>${n?"":`<div class="belt">${beltSVG(n)}<div><b>${name}</b><small>${n?`Pass${locked?` + ${locked} locked NFT`:""}`:`You need a pass to play. It costs ${passLabel()}. It stays yours forever.`}</small></div></div>`}
     ${hasPass(ME)?(()=>{const q=ps(ME);return `<div class="passcard"><div class="pc-h"><b>Boundora Pass</b><span class="tag sb">Soulbound</span></div><small>Token <code>pass-${ME}</code></small>
       <div class="hnums"><div><small>Member since</small><b>Round ${q.joinedRound}</b></div><div><small>Rounds</small><b>${q.rounds}</b></div><div><small>Strikes</small><b>${q.strikes}</b></div><div><small>Best finish</small><b>${FINISH[q.best]}</b></div></div></div>`;})():""}
     <div class="chi" style="grid-template-columns:repeat(${CFG.maxMult},1fr)" role="group" aria-label="Chi: stake multiplier">${Array.from({length:CFG.maxMult},(_,i)=>`<button data-i="${i+1}" class="${i<mult?"unl":""} ${i<stake&&mult?"sel":""}" ${i<mult?"":"disabled"} aria-label="Chi ${i+1}×${i<mult?"":", locked"}" aria-pressed="${i<stake&&mult>0}"></button>`).join("")}</div>
