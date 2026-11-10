@@ -9,7 +9,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "UNLICENSED",
   "devDependencies": {
     "@near-wallet-selector/core": "^8.10.2",
     "@near-wallet-selector/meteor-wallet": "^8.10.2",

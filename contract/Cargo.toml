@@ -3,7 +3,7 @@ name = "boundora"
 version = "0.1.0"
 edition = "2021"
 description = "Boundora: competitive gesture cycles with soulbound passes and three-body generative art on NEAR"
-license = "MIT"
+license-file = "../LICENSE"
 
 [lib]
 crate-type = ["cdylib", "rlib"]

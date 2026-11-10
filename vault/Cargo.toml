@@ -3,7 +3,7 @@ name = "boundora_vault"
 version = "0.1.0"
 edition = "2021"
 description = "Boundora hero account: the tiny contract inside hero-N.<boundora>, holding that hero's NEAR"
-license = "MIT"
+license-file = "../LICENSE"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
