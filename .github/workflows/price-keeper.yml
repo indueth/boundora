@@ -1,11 +1,10 @@
-# Keeps the $5 pass price accurate: posts the NEAR/USD rate from Pyth to the contract
-# every 30 minutes. Uses the same secrets as the deploy workflow. The signing account
-# must be the contract owner or the account set with set_price_keeper.
+# Posts the NEAR/USD rate from Pyth to the contract, for when the pass is priced in USD.
+# Manual only: the testnet pass uses a fixed NEAR price (set_pass_price_near), so no rate
+# is needed. Uses the same secrets as the deploy workflow. The signing account must be
+# the contract owner or the account set with set_price_keeper.
 name: NEAR price keeper
 
 on:
-  schedule:
-    - cron: "*/30 * * * *"
   workflow_dispatch:
 
 jobs:

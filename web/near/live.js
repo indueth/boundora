@@ -311,14 +311,16 @@ async function start() {
     if (!q.fresh) return toast("The NEAR price feed is stale. Try again shortly.");
     tx((await wallet()).mintPass(q.price), "Pass minted. You can play now.");
   };
-  // shortcut: pays current_cost × chi; with a discount hero equipped on chain, max chi can exceed the contract's limit.
   g.doStrike = async () => {
     if (!S.wallet) return g.connect();
     if (multOf(ME) < 1) return g.mintPass();
     if (!cv) return;
     const N = await wallet();
     if (cv.status === "awaiting_finalize") return tx(N.finalize(), "Round settled.");
-    tx(N.gesture((BigInt(cv.current_cost) * BigInt(stake)).toString()), "Hit! You hold the final strike.");
+    // Same math as the contract: cost × (BPS − hero+gear discount) / BPS, then × chi. Paying the undiscounted cost overshoots its cap.
+    const disc = BigInt(Math.round(fxOf(ME)[1] * 10000));
+    const unit = BigInt(cv.current_cost) * (10000n - disc) / 10000n;
+    tx(N.gesture((unit * BigInt(stake)).toString()), "Hit! You hold the final strike.");
   };
   nft = installNftLayer({ view, wallet });
   installPracticeBots();
