@@ -141,3 +141,7 @@ After changing `web/near/boundora-near.js`, rebuild the bundled wallet code with
 
 - Randomness for the raffle and art seeds uses `env::random_seed()`. That's fine for a testnet game, but block producers can influence it.
 - Each round stores its players in one vector, capped at 150, so settlement fits in gas. For more players, move to paginated settlement.
+
+## Other submission
+
+Okafor Philip (industralist) built Boundora solo. He is also on the team behind [Tummo](https://github.com/Chinnybest321/tummo), a separate NEAR HACKATHON entry in the Memecoins With Mechanics track. The two projects are independent: separate code, contracts, repositories and teams.
